@@ -1,0 +1,27 @@
+{
+  "name": "lugan-front",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "type-check": "vue-tsc --noEmit",
+    "openapi": "node openapi.config.mjs"
+  },
+  "dependencies": {
+    "ant-design-vue": "~4.2.6",
+    "axios": "^1.7.9",
+    "pinia": "^2.2.6",
+    "vue": "~3.5.22",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@umijs/openapi": "^1.13.0",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "tslib": "^2.8.1",
+    "typescript": "~5.6.3",
+    "vite": "^7.1.12",
+    "vue-tsc": "^2.1.10"
+  }
+}
