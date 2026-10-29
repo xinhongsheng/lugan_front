@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { homePhoto } from '@/constants/home'
+
+const router = useRouter()
 
 const props = defineProps<{
   product: API.ProductVO
@@ -34,10 +37,17 @@ const badges = computed(() => {
   }
   return list
 })
+
+function openDetail() {
+  if (!props.product.id) {
+    return
+  }
+  router.push({ path: '/product/detail', query: { id: props.product.id } })
+}
 </script>
 
 <template>
-  <article class="product-card">
+  <article class="product-card" role="link" tabindex="0" @click="openDetail" @keyup.enter="openDetail">
     <div class="thumb">
       <img :src="cover" :alt="product.name ?? '永春芦柑'" loading="lazy" />
       <div v-if="badges.length" class="badges">

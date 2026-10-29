@@ -55,6 +55,20 @@ declare namespace API {
     traceId?: string
   }
 
+  type BaseResponseCartQuoteVO = {
+    code?: number
+    data?: CartQuoteVO
+    message?: string
+    traceId?: string
+  }
+
+  type BaseResponseFreightQuoteVO = {
+    code?: number
+    data?: FreightQuoteVO
+    message?: string
+    traceId?: string
+  }
+
   type BaseResponseHomeVO = {
     code?: number
     data?: HomeVO
@@ -72,6 +86,13 @@ declare namespace API {
   type BaseResponsePageResultAddressVO = {
     code?: number
     data?: PageResultAddressVO
+    message?: string
+    traceId?: string
+  }
+
+  type BaseResponsePageResultCartVO = {
+    code?: number
+    data?: PageResultCartVO
     message?: string
     traceId?: string
   }
@@ -118,6 +139,13 @@ declare namespace API {
     traceId?: string
   }
 
+  type BaseResponseProductDetailVO = {
+    code?: number
+    data?: ProductDetailVO
+    message?: string
+    traceId?: string
+  }
+
   type BaseResponseString = {
     code?: number
     data?: string
@@ -130,6 +158,58 @@ declare namespace API {
     data?: UserVO
     message?: string
     traceId?: string
+  }
+
+  type CartAddRequest = {
+    skuId?: string
+    quantity?: number
+  }
+
+  type CartCheckRequest = {
+    ids?: string[]
+    checked?: number
+  }
+
+  type CartDeleteRequest = {
+    id?: string
+    ids?: string[]
+  }
+
+  type CartQuoteRequest = {
+    addressId?: string
+    province?: string
+  }
+
+  type CartQuoteVO = {
+    goodsAmount?: number
+    freightAmount?: number
+    discountAmount?: number
+    payAmount?: number
+    freeShipping?: boolean
+    ruleText?: string
+    couponName?: string
+    couponId?: string
+    checkedCount?: number
+  }
+
+  type CartUpdateRequest = {
+    id?: string
+    quantity?: number
+  }
+
+  type CartVO = {
+    id?: string
+    productId?: string
+    skuId?: string
+    productName?: string
+    skuName?: string
+    coverUrl?: string
+    priceMode?: string
+    salePrice?: number
+    quantity?: number
+    stock?: number
+    checked?: number
+    lineAmount?: number
   }
 
   type CategoryVO = {
@@ -156,6 +236,25 @@ declare namespace API {
     price?: number
   }
 
+  type FreightCalcRequest = {
+    skuId?: string
+    quantity?: number
+    province?: string
+  }
+
+  type FreightQuoteVO = {
+    goodsAmount?: number
+    freightAmount?: number
+    payAmount?: number
+    freeShipping?: boolean
+    ruleText?: string
+    stock?: number
+  }
+
+  type getProductVOByIdParams = {
+    id: string
+  }
+
   type HomeVO = {
     bannerList?: BannerVO[]
     categoryList?: CategoryVO[]
@@ -179,6 +278,13 @@ declare namespace API {
     createTime?: string
   }
 
+  type OrderAddRequest = {
+    skuId?: string
+    quantity?: number
+    addressId?: string
+    province?: string
+  }
+
   type PageRequest = {
     current?: number
     pageSize?: number
@@ -188,6 +294,11 @@ declare namespace API {
 
   type PageResultAddressVO = {
     list?: AddressVO[]
+    total?: string
+  }
+
+  type PageResultCartVO = {
+    list?: CartVO[]
     total?: string
   }
 
@@ -221,6 +332,23 @@ declare namespace API {
     total?: string
   }
 
+  type ProductDetailVO = {
+    id?: string
+    name?: string
+    coverUrl?: string
+    origin?: string
+    grade?: string
+    fruitDiameter?: string
+    netWeight?: string
+    pickTime?: string
+    freshNote?: string
+    detailText?: string
+    price?: number
+    freightText?: string
+    skuList?: ProductSkuVO[]
+    traceList?: TraceBatchVO[]
+  }
+
   type ProductQueryRequest = {
     current?: number
     pageSize?: number
@@ -233,6 +361,15 @@ declare namespace API {
     hotFlag?: number
     newFlag?: number
     directFlag?: number
+  }
+
+  type ProductSkuVO = {
+    id?: string
+    skuName?: string
+    priceMode?: string
+    salePrice?: number
+    weightJin?: number
+    stock?: number
   }
 
   type ProductVO = {
@@ -248,12 +385,28 @@ declare namespace API {
     directFlag?: number
   }
 
+  type ReviewQueryRequest = {
+    current?: number
+    pageSize?: number
+    sortField?: string
+    sortOrder?: string
+    productId?: string
+  }
+
   type ReviewVO = {
     id?: string
     productId?: string
     content?: string
     score?: number
+    imageUrls?: string
     createTime?: string
+  }
+
+  type TraceBatchVO = {
+    batchNo?: string
+    originPlace?: string
+    pickDate?: string
+    inspectNote?: string
   }
 
   type TradeOrderVO = {

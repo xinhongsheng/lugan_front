@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '@/pages/home/HomePage.vue'
+import ProductDetailPage from '@/pages/product/ProductDetailPage.vue'
+import CartPage from '@/pages/cart/CartPage.vue'
 import UserLoginPage from '@/pages/user/UserLoginPage.vue'
 import UserRegisterPage from '@/pages/user/UserRegisterPage.vue'
 import UserResetPage from '@/pages/user/UserResetPage.vue'
@@ -13,6 +15,18 @@ const router = createRouter({
       name: '首页',
       meta: { title: '首页' },
       component: HomePage,
+    },
+    {
+      path: '/product/detail',
+      name: '商品详情',
+      meta: { title: '商品详情', hideInMenu: true },
+      component: ProductDetailPage,
+    },
+    {
+      path: '/cart',
+      name: '购物车',
+      meta: { title: '购物车' },
+      component: CartPage,
     },
     {
       path: '/user/login',

@@ -7,8 +7,10 @@ import * as reviewController from './reviewController'
 import * as productController from './productController'
 import * as tradeOrderController from './tradeOrderController'
 import * as messageController from './messageController'
+import * as freightController from './freightController'
 import * as favoriteController from './favoriteController'
 import * as userCouponController from './userCouponController'
+import * as cartController from './cartController'
 import * as addressController from './addressController'
 import * as homeController from './homeController'
 export default {
@@ -17,8 +19,10 @@ export default {
   productController,
   tradeOrderController,
   messageController,
+  freightController,
   favoriteController,
   userCouponController,
+  cartController,
   addressController,
   homeController,
 }
