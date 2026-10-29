@@ -3,6 +3,7 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { resetPassword } from '@/api/userController'
+import UserAuthShell from '@/components/user/UserAuthShell.vue'
 
 const router = useRouter()
 const loading = ref(false)
@@ -33,8 +34,8 @@ async function submit() {
 </script>
 
 <template>
-  <div id="user-reset-page">
-    <a-card title="找回密码" class="card">
+  <page-container id="user-reset-page" :ghost="true">
+    <UserAuthShell>
       <a-form layout="vertical" :model="form" @finish="submit">
         <a-form-item label="账号" name="userAccount" :rules="[{ required: true, message: '请输入账号' }]">
           <a-input v-model:value="form.userAccount" />
@@ -50,26 +51,12 @@ async function submit() {
         </a-form-item>
         <a-button type="primary" html-type="submit" block :loading="loading">重置密码</a-button>
       </a-form>
-      <div class="links">
-        <router-link to="/user/login">返回登录</router-link>
-      </div>
-    </a-card>
-  </div>
+    </UserAuthShell>
+  </page-container>
 </template>
 
 <style scoped>
 #user-reset-page {
-  display: flex;
-  justify-content: center;
-  padding: 48px 16px;
-}
-
-.card {
-  width: 420px;
-}
-
-.links {
-  margin-top: 16px;
-  text-align: right;
+  min-height: 100%;
 }
 </style>

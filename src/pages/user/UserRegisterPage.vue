@@ -3,6 +3,7 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { userRegister } from '@/api/userController'
+import UserAuthShell from '@/components/user/UserAuthShell.vue'
 
 const router = useRouter()
 const loading = ref(false)
@@ -32,8 +33,8 @@ async function submit() {
 </script>
 
 <template>
-  <div id="user-register-page">
-    <a-card title="注册" class="card">
+  <page-container id="user-register-page" :ghost="true">
+    <UserAuthShell>
       <a-form layout="vertical" :model="form" @finish="submit">
         <a-form-item label="账号" name="userAccount" :rules="[{ required: true, min: 4, message: '账号至少 4 位' }]">
           <a-input v-model:value="form.userAccount" />
@@ -46,26 +47,12 @@ async function submit() {
         </a-form-item>
         <a-button type="primary" html-type="submit" block :loading="loading">注册</a-button>
       </a-form>
-      <div class="links">
-        <router-link to="/user/login">已有账号，去登录</router-link>
-      </div>
-    </a-card>
-  </div>
+    </UserAuthShell>
+  </page-container>
 </template>
 
 <style scoped>
 #user-register-page {
-  display: flex;
-  justify-content: center;
-  padding: 48px 16px;
-}
-
-.card {
-  width: 420px;
-}
-
-.links {
-  margin-top: 16px;
-  text-align: right;
+  min-height: 100%;
 }
 </style>

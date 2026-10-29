@@ -182,7 +182,7 @@ onMounted(async () => {
     <a-card title="我的资料" :bordered="false">
       <a-space align="start" :size="24">
         <div>
-          <a-avatar :size="72" :src="avatarSrc(user.userAvatar)">{{ user.userName?.[0] || '芦' }}</a-avatar>
+          <a-avatar :size="72" shape="circle" :src="avatarSrc(user.userAvatar)">{{ user.userName?.[0] || '芦' }}</a-avatar>
           <input class="file" type="file" accept="image/*" @change="onAvatar" />
         </div>
         <a-form layout="vertical" :model="profile" @finish="saveProfile">
