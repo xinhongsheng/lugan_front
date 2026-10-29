@@ -140,7 +140,7 @@ async function buyNow() {
     })
     if (response.data.code === 0) {
       message.success('已生成待付款订单')
-      await router.push('/user/profile')
+      await router.push({ path: '/order/detail', query: { id: response.data.data } })
       return
     }
     if (response.data.code !== 40100) {

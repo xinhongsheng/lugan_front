@@ -12,6 +12,7 @@ import {
   addAddress,
   deleteAddress,
   listMyAddressVoByPage,
+  updateAddress,
 } from '@/api/addressController'
 import { deleteFavorite, listMyFavoriteVoByPage } from '@/api/favoriteController'
 import { listMyTradeOrderVoByPage } from '@/api/tradeOrderController'
@@ -34,6 +35,7 @@ const reviews = ref<API.ReviewVO[]>([])
 const coupons = ref<API.UserCouponVO[]>([])
 const messages = ref<API.MessageVO[]>([])
 const addressOpen = ref(false)
+const editingAddressId = ref<string>()
 const addressForm = reactive<API.AddressAddRequest>({
   receiverName: '',
   receiverPhone: '',
@@ -130,14 +132,62 @@ async function onAvatar(event: Event) {
   await loadUser()
 }
 
+function resetAddressForm() {
+  editingAddressId.value = undefined
+  addressForm.receiverName = ''
+  addressForm.receiverPhone = ''
+  addressForm.province = '福建省'
+  addressForm.city = '泉州市'
+  addressForm.district = '永春县'
+  addressForm.detailAddress = ''
+  addressForm.defaultFlag = 0
+}
+
+function openAddress(item?: API.AddressVO) {
+  if (!item) {
+    resetAddressForm()
+  } else {
+    editingAddressId.value = item.id
+    addressForm.receiverName = item.receiverName
+    addressForm.receiverPhone = item.receiverPhone
+    addressForm.province = item.province
+    addressForm.city = item.city
+    addressForm.district = item.district
+    addressForm.detailAddress = item.detailAddress
+    addressForm.defaultFlag = item.defaultFlag
+  }
+  addressOpen.value = true
+}
+
 async function saveAddress() {
-  const response = await addAddress(addressForm)
+  const response = editingAddressId.value
+    ? await updateAddress({ ...addressForm, id: editingAddressId.value })
+    : await addAddress(addressForm)
   if (response.data.code !== 0) {
     message.error(response.data.message || '保存地址失败')
     return
   }
   addressOpen.value = false
-  message.success('地址已添加')
+  message.success(editingAddressId.value ? '地址已更新' : '地址已添加')
+  await loadLists()
+}
+
+async function makeDefault(item: API.AddressVO) {
+  const response = await updateAddress({
+    id: item.id,
+    receiverName: item.receiverName,
+    receiverPhone: item.receiverPhone,
+    province: item.province,
+    city: item.city,
+    district: item.district,
+    detailAddress: item.detailAddress,
+    defaultFlag: 1,
+  })
+  if (response.data.code !== 0) {
+    message.error(response.data.message || '设置默认地址失败')
+    return
+  }
+  message.success('已设为默认地址')
   await loadLists()
 }
 
@@ -206,7 +256,7 @@ onMounted(async () => {
     <a-card class="gap" :bordered="false">
       <a-tabs>
         <a-tab-pane key="address" tab="收货地址">
-          <a-button type="primary" @click="addressOpen = true">新增地址</a-button>
+          <a-button type="primary" @click="openAddress()">新增地址</a-button>
           <a-list class="gap" :data-source="addresses" item-layout="horizontal">
             <template #renderItem="{ item }">
               <a-list-item>
@@ -215,6 +265,8 @@ onMounted(async () => {
                   :description="`${item.province || ''}${item.city || ''}${item.district || ''}${item.detailAddress || ''}`"
                 />
                 <a-tag v-if="item.defaultFlag === 1" color="green">默认</a-tag>
+                <a-button v-else type="link" @click="makeDefault(item)">设为默认</a-button>
+                <a-button type="link" @click="openAddress(item)">编辑</a-button>
                 <a-button type="link" @click="removeAddress(item.id)">删除</a-button>
               </a-list-item>
             </template>
@@ -238,7 +290,9 @@ onMounted(async () => {
             <template #renderItem="{ item }">
               <a-list-item>
                 <a-list-item-meta :title="item.orderNo" :description="orderText(item.orderStatus)" />
-                <span>¥{{ item.payAmount }}</span>
+                <a-button type="link" @click="router.push({ path: '/order/detail', query: { id: item.id } })">
+                  ¥{{ item.payAmount }}
+                </a-button>
               </a-list-item>
             </template>
           </a-list>
@@ -281,7 +335,7 @@ onMounted(async () => {
       </a-tabs>
     </a-card>
 
-    <a-modal v-model:open="addressOpen" title="新增地址" ok-text="保存" @ok="saveAddress">
+    <a-modal v-model:open="addressOpen" :title="editingAddressId ? '编辑地址' : '新增地址'" ok-text="保存" @ok="saveAddress">
       <a-form layout="vertical" :model="addressForm">
         <a-form-item label="收货人">
           <a-input v-model:value="addressForm.receiverName" />

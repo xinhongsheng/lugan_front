@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import {
   checkCart,
-  checkoutCart,
   deleteCart,
   listMyCartVoByPage,
   quoteCart,
@@ -135,27 +134,12 @@ async function removeRows(ids: string[]) {
   }
 }
 
-async function checkout() {
+function checkout() {
   if (selected.value.length === 0) {
     message.warning('请先选择商品')
     return
   }
-  acting.value = true
-  try {
-    const response = await checkoutCart({ province: province.value })
-    if (response.data.code === 0) {
-      message.success('已结算，库存已预锁，订单待付款')
-      await router.push('/user/profile')
-      return
-    }
-    if (response.data.code !== 40100) {
-      message.error(response.data.message || '结算失败')
-    }
-  } catch {
-    message.error('结算失败')
-  } finally {
-    acting.value = false
-  }
+  router.push({ path: '/order/confirm', query: { province: province.value } })
 }
 
 watch(province, () => {
@@ -249,7 +233,7 @@ onMounted(load)
           <strong>¥{{ money(quote.payAmount) }}</strong>
         </div>
         <a-button type="primary" :disabled="selected.length === 0" :loading="acting" @click="checkout">
-          结算（{{ selected.length }}）
+          去确认（{{ selected.length }}）
         </a-button>
       </div>
     </a-card>

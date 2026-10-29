@@ -153,6 +153,13 @@ declare namespace API {
     traceId?: string
   }
 
+  type BaseResponseTradeOrderDetailVO = {
+    code?: number
+    data?: TradeOrderDetailVO
+    message?: string
+    traceId?: string
+  }
+
   type BaseResponseUserVO = {
     code?: number
     data?: UserVO
@@ -255,6 +262,10 @@ declare namespace API {
     id: string
   }
 
+  type getTradeOrderVOByIdParams = {
+    id: string
+  }
+
   type HomeVO = {
     bannerList?: BannerVO[]
     categoryList?: CategoryVO[]
@@ -283,6 +294,20 @@ declare namespace API {
     quantity?: number
     addressId?: string
     province?: string
+  }
+
+  type OrderIdRequest = {
+    id?: string
+  }
+
+  type OrderPayRequest = {
+    id?: string
+    payChannel?: string
+  }
+
+  type OrderRefundRequest = {
+    id?: string
+    reason?: string
   }
 
   type PageRequest = {
@@ -385,6 +410,14 @@ declare namespace API {
     directFlag?: number
   }
 
+  type ReviewAddRequest = {
+    orderId?: string
+    productId?: string
+    content?: string
+    score?: number
+    imageUrls?: string
+  }
+
   type ReviewQueryRequest = {
     current?: number
     pageSize?: number
@@ -409,11 +442,49 @@ declare namespace API {
     inspectNote?: string
   }
 
+  type TradeOrderDetailVO = {
+    id?: string
+    orderNo?: string
+    goodsAmount?: number
+    freightAmount?: number
+    discountAmount?: number
+    payAmount?: number
+    orderStatus?: string
+    payChannel?: string
+    payTime?: string
+    logisticsNo?: string
+    receiverName?: string
+    receiverPhone?: string
+    province?: string
+    city?: string
+    district?: string
+    detailAddress?: string
+    refundStatus?: string
+    refundReason?: string
+    createTime?: string
+    itemList?: TradeOrderItemVO[]
+  }
+
+  type TradeOrderItemVO = {
+    productId?: string
+    skuId?: string
+    productName?: string
+    skuName?: string
+    salePrice?: number
+    quantity?: number
+    lineAmount?: number
+  }
+
   type TradeOrderVO = {
     id?: string
     orderNo?: string
+    goodsAmount?: number
+    freightAmount?: number
+    discountAmount?: number
     payAmount?: number
     orderStatus?: string
+    logisticsNo?: string
+    refundStatus?: string
     createTime?: string
   }
 

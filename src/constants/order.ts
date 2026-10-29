@@ -21,6 +21,16 @@ export const ORDER_STATUS_OPTIONS = ORDER_STATUS_ENUM.map((value) => ({
   value,
 }))
 
+export const REFUND_STATUS_MAP: Record<string, string> = {
+  none: '',
+  applying: '退款申请中',
+}
+
+export const PAY_CHANNEL_MAP: Record<string, string> = {
+  alipay: '支付宝',
+  wechat: '微信',
+}
+
 export const ORDER_STATUS_COLOR_MAP: Record<(typeof ORDER_STATUS_ENUM)[number], string> = {
   unpaid: 'orange',
   unshipped: 'blue',

@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '@/pages/home/HomePage.vue'
 import ProductDetailPage from '@/pages/product/ProductDetailPage.vue'
 import CartPage from '@/pages/cart/CartPage.vue'
+import OrderConfirmPage from '@/pages/order/OrderConfirmPage.vue'
+import OrderDetailPage from '@/pages/order/OrderDetailPage.vue'
 import UserLoginPage from '@/pages/user/UserLoginPage.vue'
 import UserRegisterPage from '@/pages/user/UserRegisterPage.vue'
 import UserResetPage from '@/pages/user/UserResetPage.vue'
@@ -27,6 +29,18 @@ const router = createRouter({
       name: '购物车',
       meta: { title: '购物车' },
       component: CartPage,
+    },
+    {
+      path: '/order/confirm',
+      name: '订单确认',
+      meta: { title: '订单确认', hideInMenu: true },
+      component: OrderConfirmPage,
+    },
+    {
+      path: '/order/detail',
+      name: '订单详情',
+      meta: { title: '订单详情', hideInMenu: true },
+      component: OrderDetailPage,
     },
     {
       path: '/user/login',
