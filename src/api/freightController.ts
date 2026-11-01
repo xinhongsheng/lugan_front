@@ -2,6 +2,18 @@
 /* eslint-disable */
 import request from '@/request'
 
+/** 此处后端没有提供注释 POST /freight/active */
+export async function activateFreight(body: API.DeleteRequest, options?: { [key: string]: any }) {
+  return request<API.BaseResponseBoolean>('/freight/active', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
 /** 此处后端没有提供注释 POST /freight/add */
 export async function addFreight(body: API.FreightSaveRequest, options?: { [key: string]: any }) {
   return request<API.BaseResponseLong>('/freight/add', {

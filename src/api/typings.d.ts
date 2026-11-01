@@ -595,6 +595,7 @@ declare namespace API {
     inProvinceFee?: number
     outProvinceFee?: number
     freeAmount?: number
+    activeStatus?: number
     createTime?: string
   }
 

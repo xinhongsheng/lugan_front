@@ -245,7 +245,7 @@ watch(
               {{ quote.freeShipping ? '已满包邮' : `运费 ¥${Number(quote.freightAmount ?? 0).toFixed(2)}` }}
               · 应付 ¥{{ Number(quote.payAmount ?? 0).toFixed(2) }}
             </p>
-            <p class="rule">{{ detail.freightText || quote.ruleText }}</p>
+            <p class="rule">{{ quote.ruleText || detail.freightText }}</p>
             <div class="coupon-pick">
               <button type="button" :class="{ on: !userCouponId }" @click="userCouponId = undefined">不用券</button>
               <button

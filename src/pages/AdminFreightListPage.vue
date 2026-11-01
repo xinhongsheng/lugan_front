@@ -3,7 +3,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import type { TableColumnType } from 'ant-design-vue'
-import { addFreight, deleteFreight, listFreightVoByPage, updateFreight } from '@/api/freightController'
+import { activateFreight, addFreight, deleteFreight, listFreightVoByPage, updateFreight } from '@/api/freightController'
 
 const router = useRouter()
 const loading = ref(false)
@@ -24,8 +24,9 @@ const columns: TableColumnType[] = [
   { title: '省内运费', dataIndex: 'inProvinceFee', width: 120 },
   { title: '省外运费', dataIndex: 'outProvinceFee', width: 120 },
   { title: '满额包邮', dataIndex: 'freeAmount', width: 120 },
+  { title: '状态', key: 'status', width: 100 },
   { title: '创建时间', dataIndex: 'createTime', width: 180 },
-  { title: '操作', key: 'action', width: 140 },
+  { title: '操作', key: 'action', width: 180 },
 ]
 
 async function load() {
@@ -91,6 +92,19 @@ async function save() {
   }
 }
 
+async function activate(id?: string) {
+  if (!id) {
+    return
+  }
+  const response = await activateFreight({ id })
+  if (response.data.code !== 0) {
+    message.error(response.data.message || '切换失败')
+    return
+  }
+  message.success('已设为当前规则')
+  await load()
+}
+
 async function remove(id?: string) {
   if (!id) {
     return
@@ -133,7 +147,12 @@ onMounted(load)
         @change="onTableChange"
       >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'action'">
+          <template v-if="column.key === 'status'">
+            <a-tag v-if="record.activeStatus === 1" color="green">生效中</a-tag>
+            <span v-else>未生效</span>
+          </template>
+          <template v-else-if="column.key === 'action'">
+            <a-button v-if="record.activeStatus !== 1" type="link" size="small" @click="activate(record.id)">设为当前</a-button>
             <a-button type="link" size="small" @click="openEdit(record)">编辑</a-button>
             <a-popconfirm title="至少保留一条运费规则。确认删除这一条？" @confirm="remove(record.id)">
               <a-button type="link" danger size="small">删除</a-button>
@@ -149,7 +168,7 @@ onMounted(load)
         <a-form-item label="省外运费"><a-input-number v-model:value="form.outProvinceFee" :min="0" :precision="2" style="width: 160px" /></a-form-item>
         <a-form-item label="满额包邮">
           <a-input-number v-model:value="form.freeAmount" :min="0" :precision="2" style="width: 160px" />
-          <div class="hint">填 0 表示不启用满额包邮。大于 0 时不能低于省内运费。</div>
+          <div class="hint">填 0 表示不包邮。大于 0 时不能低于省内运费。新建后成为当前结算规则。</div>
         </a-form-item>
       </a-form>
     </a-modal>
