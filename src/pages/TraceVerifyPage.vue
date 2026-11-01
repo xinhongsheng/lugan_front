@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import request from '@/request'
 import { fileUrl } from '@/utils/fileUrl'
-import { TRACE_REASON_MAP, TRACE_RESULT_MAP } from '@/constants/trace'
+import { TRACE_NODE_MAP, TRACE_REASON_MAP, TRACE_RESULT_MAP } from '@/constants/trace'
 
 type NodeRow = {
   seq?: number
@@ -18,9 +18,11 @@ type VerifyData = {
   resultReason?: string
   brokenSeq?: number
   missing?: string[]
+  orderBroken?: boolean
   traceCode?: string
   skuName?: string
   originAreaName?: string
+  giMark?: boolean
   scanCount?: number
   maxScanCount?: number
   nodes?: NodeRow[]
@@ -33,6 +35,10 @@ const code = computed(() => String(route.params.code || ''))
 
 const title = computed(() => TRACE_RESULT_MAP[data.value.result as keyof typeof TRACE_RESULT_MAP] || '溯源码无效')
 const reason = computed(() => TRACE_REASON_MAP[data.value.resultReason || ''] || data.value.resultReason || '')
+
+function nodeLabel(code: string) {
+  return TRACE_NODE_MAP[code as keyof typeof TRACE_NODE_MAP] || code
+}
 
 async function load() {
   if (!code.value) {
@@ -56,7 +62,7 @@ watch(code, load)
 
 <template>
   <div id="trace-verify" class="page">
-    <header class="mark">
+    <header v-if="data.giMark" class="mark">
       <span>国家地理标志</span>
       <strong>永春芦柑</strong>
     </header>
@@ -65,7 +71,8 @@ watch(code, load)
       <h1>{{ title }}</h1>
       <p class="reason">{{ reason }}</p>
       <p v-if="data.brokenSeq" class="reason">第 {{ data.brokenSeq }} 条记录起哈希不一致</p>
-      <p v-if="data.missing?.length" class="reason">缺少：{{ data.missing.join('、') }}</p>
+      <p v-if="data.orderBroken" class="reason">节点顺序不正确</p>
+      <p v-if="data.missing?.length" class="reason">缺少：{{ data.missing.map(nodeLabel).join('、') }}</p>
       <dl class="meta">
         <div><dt>规格</dt><dd>{{ data.skuName || '—' }}</dd></div>
         <div><dt>产区</dt><dd>{{ data.originAreaName || '—' }}</dd></div>
