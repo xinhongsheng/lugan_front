@@ -19,6 +19,7 @@ import AdminMarketingPage from '@/pages/AdminMarketingPage.vue'
 import AdminTracePage from '@/pages/AdminTracePage.vue'
 import TraceVerifyPage from '@/pages/TraceVerifyPage.vue'
 import AdminPresaleOrderPage from '@/pages/AdminPresaleOrderPage.vue'
+import AdminPresaleTaskLogPage from '@/pages/AdminPresaleTaskLogPage.vue'
 import AdminPaymentFlowPage from '@/pages/AdminPaymentFlowPage.vue'
 import PresalePage from '@/pages/PresalePage.vue'
 
@@ -132,6 +133,12 @@ const router = createRouter({
       name: '预售订单',
       meta: { title: '预售订单', hideInMenu: true },
       component: AdminPresaleOrderPage,
+    },
+    {
+      path: '/admin/presale-task',
+      name: '预售关单日志',
+      meta: { title: '预售关单日志', hideInMenu: true },
+      component: AdminPresaleTaskLogPage,
     },
     {
       path: '/admin/payment',

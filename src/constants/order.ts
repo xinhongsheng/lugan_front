@@ -44,6 +44,13 @@ export const PAY_CHANNEL_OPTIONS = [
   { label: '微信', value: 'wechat' },
 ]
 
+export const PAY_BIZ_MAP: Record<string, string> = {
+  full: '一次付清',
+  deposit: '定金',
+  balance: '尾款',
+  depositRefund: '退定金',
+}
+
 export const ORDER_STATUS_COLOR_MAP: Record<(typeof ORDER_STATUS_ENUM)[number], string> = {
   unpaid: 'orange',
   unshipped: 'blue',

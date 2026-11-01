@@ -16,12 +16,12 @@ import {
 } from '@/api/addressController'
 import { deleteFavorite, listMyFavoriteVoByPage } from '@/api/favoriteController'
 import { listMyTradeOrderVoByPage } from '@/api/tradeOrderController'
-import { confirmPresaleOrder, finishPresaleOrder, listMyPresaleOrderVoByPage, payBalance, payDeposit } from '@/api/presaleOrderController'
+import { confirmPresaleOrder, finishPresaleOrder, getPresaleOrderVoById, listMyPresaleOrderVoByPage, payBalance, payDeposit } from '@/api/presaleOrderController'
 import { listMyPaymentFlowVoByPage } from '@/api/paymentFlowController'
 import { listMyReviewVoByPage } from '@/api/reviewController'
 import { listMyUserCouponVoByPage } from '@/api/userCouponController'
 import { listMyMessageVoByPage, readMessage } from '@/api/messageController'
-import { ORDER_STATUS_MAP, PAY_CHANNEL_OPTIONS } from '@/constants/order'
+import { ORDER_STATUS_MAP, PAY_BIZ_MAP, PAY_CHANNEL_OPTIONS } from '@/constants/order'
 import { PRESALE_STATUS_MAP } from '@/constants/presale'
 import { HOME_ART } from '@/constants/homeArt'
 import { fileUrl } from '@/utils/fileUrl'
@@ -40,6 +40,7 @@ const presaleOrders = ref<API.PresaleOrderVO[]>([])
 const flows = ref<API.PaymentFlowVO[]>([])
 const presaleActing = ref(false)
 const payOpen = ref(false)
+const flowOpen = ref(false)
 const finishOpen = ref(false)
 const payTarget = ref<API.PresaleOrderVO>()
 const payKind = ref<'deposit' | 'balance'>('deposit')
@@ -47,6 +48,7 @@ const payChannel = ref('alipay')
 const finishTarget = ref<API.PresaleOrderVO>()
 const finishScore = ref(5)
 const finishContent = ref('')
+const orderFlows = ref<API.PaymentFlowVO[]>([])
 const reviews = ref<API.ReviewVO[]>([])
 const coupons = ref<API.UserCouponVO[]>([])
 const messages = ref<API.MessageVO[]>([])
@@ -120,8 +122,33 @@ async function loadLists() {
   flows.value = flowRes.data.data?.list ?? []
 }
 
+function balanceOpen(item: API.PresaleOrderVO) {
+  if (!item.openPickDate) {
+    return false
+  }
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai' }).format(new Date())
+  return today >= item.openPickDate
+}
+
 function presaleText(status?: string) {
   return PRESALE_STATUS_MAP[status || ''] || status || '未知'
+}
+
+function flowText(bizType?: string) {
+  return PAY_BIZ_MAP[bizType || ''] || bizType || '款项'
+}
+
+async function openFlows(id?: string) {
+  if (!id) {
+    return
+  }
+  const response = await getPresaleOrderVoById({ id })
+  if (response.data.code !== 0) {
+    message.error(response.data.message || '流水加载失败')
+    return
+  }
+  orderFlows.value = response.data.data?.flowList ?? []
+  flowOpen.value = true
 }
 
 function openPay(item: API.PresaleOrderVO, kind: 'deposit' | 'balance') {
@@ -467,11 +494,13 @@ onMounted(async () => {
               <div>
                 <strong>{{ item.activityTitle || item.orderNo }}</strong>
                 <p>{{ presaleText(item.presaleStatus) }} · 定金 ¥{{ item.depositAmount }} · 尾款 ¥{{ item.balanceAmount }}</p>
+                <p v-if="item.presaleStatus === 'unpaidBalance' && !balanceOpen(item)">{{ item.openPickDate ? `开摘日 ${item.openPickDate} 后可付尾款` : '未到开摘日，暂不能付尾款' }}</p>
                 <p v-if="item.logisticsNo">物流 {{ item.logisticsNo }}</p>
               </div>
               <div class="ops">
+                <button type="button" @click="openFlows(item.id)">资金流水</button>
                 <button v-if="item.presaleStatus === 'unpaidDeposit'" type="button" @click="openPay(item, 'deposit')">付定金</button>
-                <button v-if="item.presaleStatus === 'unpaidBalance'" type="button" @click="openPay(item, 'balance')">付尾款</button>
+                <button v-if="item.presaleStatus === 'unpaidBalance' && balanceOpen(item)" type="button" @click="openPay(item, 'balance')">付尾款</button>
                 <button v-if="item.presaleStatus === 'unreceived'" type="button" @click="confirmPresale(item.id)">确认收货</button>
                 <button v-if="item.presaleStatus === 'uncommented'" type="button" @click="openFinish(item)">评价</button>
               </div>
@@ -484,7 +513,7 @@ onMounted(async () => {
             <article v-for="item in flows" :key="item.id" class="row">
               <div>
                 <strong>{{ item.flowNo }}</strong>
-                <p>{{ item.orderType === 'presale' ? '预售' : '现货' }} · {{ item.bizType === 'deposit' ? '定金' : item.bizType === 'balance' ? '尾款' : '一次付清' }} · ¥{{ item.amount }}</p>
+                <p>{{ item.orderType === 'presale' ? '预售' : '现货' }} · {{ flowText(item.bizType) }} · ¥{{ item.amount }}</p>
               </div>
               <em>{{ item.payTime }}</em>
             </article>
@@ -531,6 +560,15 @@ onMounted(async () => {
 
     <a-modal v-model:open="payOpen" :title="payKind === 'deposit' ? '支付定金' : '支付尾款'" :confirm-loading="presaleActing" ok-text="确认支付" @ok="submitPay">
       <a-select v-model:value="payChannel" :options="PAY_CHANNEL_OPTIONS" style="width: 100%" />
+    </a-modal>
+    <a-modal v-model:open="flowOpen" title="定金与尾款" :footer="null">
+      <a-empty v-if="orderFlows.length === 0" description="还没有资金流水" />
+      <article v-for="item in orderFlows" :key="item.id" class="row">
+        <div>
+          <strong>{{ flowText(item.bizType) }}</strong>
+          <p>¥{{ item.amount }} · {{ item.payTime }}</p>
+        </div>
+      </article>
     </a-modal>
     <a-modal v-model:open="finishOpen" title="预售评价" :confirm-loading="presaleActing" ok-text="提交" @ok="submitFinish">
       <a-form layout="vertical">

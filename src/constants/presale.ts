@@ -13,3 +13,9 @@ export const PRESALE_ACTIVITY_STATUS_MAP: Record<number, string> = {
   1: '进行中',
   2: '已结束',
 }
+
+export const TASK_STATUS_MAP: Record<string, string> = {
+  processing: '处理中',
+  succeeded: '成功',
+  failed: '失败',
+}

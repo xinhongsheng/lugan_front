@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import type { TableColumnType } from 'ant-design-vue'
 import { listPaymentFlowVoByPage } from '@/api/paymentFlowController'
-import { PAY_CHANNEL_MAP } from '@/constants/order'
+import { PAY_BIZ_MAP, PAY_CHANNEL_MAP } from '@/constants/order'
 
 const router = useRouter()
 const loading = ref(false)
@@ -16,12 +16,7 @@ const orderTypeOptions = [
   { value: 'normal', label: '现货订单' },
   { value: 'presale', label: '预售订单' },
 ]
-const bizTypeOptions = [
-  { value: 'full', label: '一次付清' },
-  { value: 'deposit', label: '定金' },
-  { value: 'balance', label: '尾款' },
-]
-const bizName: Record<string, string> = { full: '一次付清', deposit: '定金', balance: '尾款' }
+const bizTypeOptions = Object.entries(PAY_BIZ_MAP).map(([value, label]) => ({ value, label }))
 const orderName: Record<string, string> = { normal: '现货', presale: '预售' }
 
 const columns: TableColumnType[] = [
@@ -97,7 +92,7 @@ onMounted(load)
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'orderType'">{{ orderName[record.orderType || ''] || record.orderType }}</template>
-          <template v-else-if="column.key === 'bizType'">{{ bizName[record.bizType || ''] || record.bizType }}</template>
+          <template v-else-if="column.key === 'bizType'">{{ PAY_BIZ_MAP[record.bizType || ''] || record.bizType }}</template>
           <template v-else-if="column.key === 'payChannel'">{{ PAY_CHANNEL_MAP[record.payChannel || ''] || record.payChannel }}</template>
         </template>
       </a-table>

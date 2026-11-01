@@ -948,6 +948,37 @@ declare namespace API {
     createTime?: string
   }
 
+  type ScheduleTaskLogQueryRequest = {
+    current?: number
+    pageSize?: number
+    sortField?: string
+    sortOrder?: string
+    taskCode?: string
+    runStatus?: string
+  }
+
+  type ScheduleTaskLogVO = {
+    id?: string
+    taskCode?: string
+    bizId?: string
+    runStatus?: string
+    resultMessage?: string
+    runTime?: string
+    createTime?: string
+  }
+
+  type PageResultScheduleTaskLogVO = {
+    list?: ScheduleTaskLogVO[]
+    total?: number
+  }
+
+  type BaseResponsePageResultScheduleTaskLogVO = {
+    code?: number
+    data?: PageResultScheduleTaskLogVO
+    message?: string
+    traceId?: string
+  }
+
   type PointRedeemRequest = {
     points?: number
   }
@@ -986,10 +1017,19 @@ declare namespace API {
     depositRatio?: number
     totalStock?: number
     soldStock?: number
+    lockedStock?: number
     remainStock?: number
+    skuId?: string
+    batchCode?: string
+    depositForfeit?: number
     depositDeadline?: string
     balanceDeadline?: string
     status?: number
+  }
+
+  type PresaleBindTraceRequest = {
+    id?: string
+    traceCodeIds?: string[]
   }
 
   type PresaleFinishRequest = {
@@ -1008,6 +1048,7 @@ declare namespace API {
     id?: string
     presaleActivityId?: string
     activityTitle?: string
+    openPickDate?: string
     orderNo?: string
     quantity?: number
     totalAmount?: number
@@ -1037,6 +1078,7 @@ declare namespace API {
     id?: string
     presaleActivityId?: string
     activityTitle?: string
+    openPickDate?: string
     orderNo?: string
     quantity?: number
     totalAmount?: number

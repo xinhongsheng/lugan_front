@@ -108,6 +108,7 @@ onMounted(load)
           <span>{{ item.productName }}</span>
           <span>开摘 {{ item.openPickDate }} · 预计发货 {{ item.expectShipDate }}</span>
           <span>定金 {{ Math.round(Number(item.depositRatio || 0) * 100) }}% · 剩余 {{ item.remainStock ?? 0 }} 份</span>
+          <span>尾款截止 {{ item.balanceDeadline }}</span>
           <span>定金截止 {{ item.depositDeadline }}</span>
           <em v-if="!depositOpen(item)">定金已截止</em>
         </button>

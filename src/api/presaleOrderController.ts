@@ -130,3 +130,30 @@ export async function shipPresaleOrder(
     ...(options || {}),
   })
 }
+
+/** 此处后端没有提供注释 POST /presaleOrder/close */
+export async function closePresaleOrder(body: API.OrderIdRequest, options?: { [key: string]: any }) {
+  return request<API.BaseResponseBoolean>('/presaleOrder/close', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
+/** 此处后端没有提供注释 POST /presaleOrder/bindTrace */
+export async function bindPresaleTrace(
+  body: API.PresaleBindTraceRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseBoolean>('/presaleOrder/bindTrace', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}

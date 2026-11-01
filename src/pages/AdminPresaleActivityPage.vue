@@ -9,7 +9,7 @@ import {
   listPresaleActivityVoByPage,
   updatePresaleActivity,
 } from '@/api/presaleActivityController'
-import { listProductVoByPage } from '@/api/productController'
+import { getProductVoById, listProductVoByPage } from '@/api/productController'
 import { PRESALE_ACTIVITY_STATUS_MAP } from '@/constants/presale'
 
 const router = useRouter()
@@ -18,6 +18,7 @@ const saving = ref(false)
 const open = ref(false)
 const rows = ref<API.PresaleActivityVO[]>([])
 const products = ref<API.ProductVO[]>([])
+const skus = ref<API.ProductSkuVO[]>([])
 const total = ref(0)
 const query = reactive<API.PresaleActivityQueryRequest>({ current: 1, pageSize: 10 })
 const form = reactive<API.PresaleActivitySaveRequest>({
@@ -33,11 +34,21 @@ const columns: TableColumnType[] = [
   { title: '预计发货', dataIndex: 'expectShipDate', width: 120 },
   { title: '定金比例', dataIndex: 'depositRatio', width: 100 },
   { title: '限量', dataIndex: 'totalStock', width: 80 },
-  { title: '已订', dataIndex: 'soldStock', width: 80 },
+  { title: '锁定', dataIndex: 'lockedStock', width: 80 },
+  { title: '已售', dataIndex: 'soldStock', width: 80 },
   { title: '剩余', dataIndex: 'remainStock', width: 80 },
   { title: '状态', key: 'status', width: 90 },
   { title: '操作', key: 'action', width: 140 },
 ]
+
+async function loadSkus(productId?: string) {
+  skus.value = []
+  if (!productId) {
+    return
+  }
+  const response = await getProductVoById({ id: productId })
+  skus.value = response.data.code === 0 ? response.data.data?.skuList ?? [] : []
+}
 
 async function loadProducts() {
   const response = await listProductVoByPage({ current: 1, pageSize: 20 })
@@ -73,6 +84,11 @@ function onTableChange(pagination: { current?: number }) {
   load()
 }
 
+function onProductChange(productId: string) {
+  form.skuId = undefined
+  loadSkus(productId)
+}
+
 function openCreate() {
   form.id = undefined
   form.productId = undefined
@@ -81,12 +97,15 @@ function openCreate() {
   form.expectShipDate = undefined
   form.depositRatio = 0.3
   form.totalStock = 100
+  form.depositForfeit = 1
+  form.skuId = undefined
   form.depositDeadline = undefined
   form.balanceDeadline = undefined
+  skus.value = []
   open.value = true
 }
 
-function openEdit(record: API.PresaleActivityVO) {
+async function openEdit(record: API.PresaleActivityVO) {
   form.id = record.id
   form.productId = record.productId
   form.title = record.title
@@ -94,8 +113,11 @@ function openEdit(record: API.PresaleActivityVO) {
   form.expectShipDate = record.expectShipDate
   form.depositRatio = record.depositRatio
   form.totalStock = record.totalStock
+  form.depositForfeit = record.depositForfeit ?? 1
+  form.skuId = record.skuId
   form.depositDeadline = record.depositDeadline
   form.balanceDeadline = record.balanceDeadline
+  await loadSkus(record.productId)
   open.value = true
 }
 
@@ -139,6 +161,7 @@ onMounted(async () => {
     <template #extra>
       <a-space :size="4">
         <a-button type="link" @click="router.push('/admin/presale-order')">预售订单</a-button>
+        <a-button type="link" @click="router.push('/admin/presale-task')">关单日志</a-button>
         <a-button type="link" @click="router.push('/admin/order')">订单</a-button>
         <a-button type="link" @click="router.push('/')">返回商城</a-button>
       </a-space>
@@ -178,12 +201,21 @@ onMounted(async () => {
       <a-form layout="vertical">
         <a-form-item label="标题"><a-input v-model:value="form.title" :maxlength="64" placeholder="如达埔第 3 批 · 11 月开摘" /></a-form-item>
         <a-form-item label="商品">
-          <a-select v-model:value="form.productId" show-search option-filter-prop="label" :options="products.map((item) => ({ value: item.id, label: item.name }))" />
+          <a-select v-model:value="form.productId" show-search option-filter-prop="label" :options="products.map((item) => ({ value: item.id, label: item.name }))" @change="onProductChange" />
+        </a-form-item>
+        <a-form-item label="规格">
+          <a-select v-model:value="form.skuId" :options="skus.map((item) => ({ value: item.id, label: `${item.skuName} / ${item.priceMode === 'jin' ? '按斤' : '按件'}` }))" />
         </a-form-item>
         <a-form-item label="开摘日"><a-date-picker v-model:value="form.openPickDate" value-format="YYYY-MM-DD" style="width: 100%" /></a-form-item>
         <a-form-item label="预计发货日"><a-date-picker v-model:value="form.expectShipDate" value-format="YYYY-MM-DD" style="width: 100%" /></a-form-item>
-        <a-form-item label="定金比例"><a-input-number v-model:value="form.depositRatio" :min="0.01" :max="1" :step="0.05" :precision="2" style="width: 160px" /></a-form-item>
+        <a-form-item label="定金比例"><a-input-number v-model:value="form.depositRatio" :min="0.01" :max="0.99" :step="0.05" :precision="2" style="width: 160px" /></a-form-item>
         <a-form-item label="批次限量"><a-input-number v-model:value="form.totalStock" :min="1" :max="100000" style="width: 160px" /></a-form-item>
+        <a-form-item label="尾款超时定金">
+          <a-radio-group v-model:value="form.depositForfeit">
+            <a-radio :value="1">不退</a-radio>
+            <a-radio :value="0">退还</a-radio>
+          </a-radio-group>
+        </a-form-item>
         <a-form-item label="定金截止"><a-date-picker v-model:value="form.depositDeadline" show-time value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" /></a-form-item>
         <a-form-item label="尾款截止"><a-date-picker v-model:value="form.balanceDeadline" show-time value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" /></a-form-item>
       </a-form>

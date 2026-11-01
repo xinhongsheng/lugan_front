@@ -3,13 +3,15 @@ import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import type { TableColumnType } from 'ant-design-vue'
-import { listAllPresaleOrderVoByPage, shipPresaleOrder } from '@/api/presaleOrderController'
+import { bindPresaleTrace, closePresaleOrder, listAllPresaleOrderVoByPage, shipPresaleOrder } from '@/api/presaleOrderController'
 import { PRESALE_STATUS_MAP } from '@/constants/presale'
 
 const router = useRouter()
 const loading = ref(false)
 const saving = ref(false)
 const open = ref(false)
+const bindOpen = ref(false)
+const traceIds = ref('')
 const rows = ref<API.PresaleOrderVO[]>([])
 const total = ref(0)
 const query = reactive<API.PresaleOrderQueryRequest>({ current: 1, pageSize: 10 })
@@ -25,7 +27,7 @@ const columns: TableColumnType[] = [
   { title: '尾款', dataIndex: 'balanceAmount', width: 90 },
   { title: '状态', key: 'presaleStatus', width: 110 },
   { title: '物流单号', dataIndex: 'logisticsNo', width: 180 },
-  { title: '操作', key: 'action', width: 90 },
+  { title: '操作', key: 'action', width: 220 },
 ]
 
 async function load() {
@@ -64,6 +66,46 @@ function openShip(record: API.PresaleOrderVO) {
   open.value = true
 }
 
+function openBind(record: API.PresaleOrderVO) {
+  shipForm.id = record.id
+  traceIds.value = ''
+  bindOpen.value = true
+}
+
+async function bindTrace() {
+  const traceCodeIds = traceIds.value.split(/[,，\s]+/).map((item) => item.trim()).filter(Boolean)
+  if (!shipForm.id || traceCodeIds.length === 0) {
+    message.warning('请填写溯源码 id')
+    return
+  }
+  saving.value = true
+  try {
+    const response = await bindPresaleTrace({ id: shipForm.id, traceCodeIds })
+    if (response.data.code !== 0) {
+      message.error(response.data.message || '绑定失败')
+      return
+    }
+    message.success('已绑定溯源码')
+    bindOpen.value = false
+    await load()
+  } finally {
+    saving.value = false
+  }
+}
+
+async function closeOrder(id?: string) {
+  if (!id) {
+    return
+  }
+  const response = await closePresaleOrder({ id })
+  if (response.data.code !== 0) {
+    message.error(response.data.message || '关闭失败')
+    return
+  }
+  message.success('已关闭')
+  await load()
+}
+
 async function ship() {
   saving.value = true
   try {
@@ -88,6 +130,7 @@ onMounted(load)
     <template #extra>
       <a-space :size="4">
         <a-button type="link" @click="router.push('/admin/presale')">预售配置</a-button>
+        <a-button type="link" @click="router.push('/admin/presale-task')">关单日志</a-button>
         <a-button type="link" @click="router.push('/admin/order')">现货订单</a-button>
       </a-space>
     </template>
@@ -116,6 +159,8 @@ onMounted(load)
             {{ PRESALE_STATUS_MAP[record.presaleStatus || ''] || record.presaleStatus }}
           </template>
           <template v-else-if="column.key === 'action'">
+            <a-button v-if="record.presaleStatus === 'unpaidDeposit' || record.presaleStatus === 'unpaidBalance'" type="link" size="small" @click="closeOrder(record.id)">关闭</a-button>
+            <a-button v-if="record.presaleStatus === 'unshipped'" type="link" size="small" @click="openBind(record)">绑溯源码</a-button>
             <a-button v-if="record.presaleStatus === 'unshipped'" type="link" size="small" @click="openShip(record)">发货</a-button>
           </template>
         </template>
@@ -125,6 +170,13 @@ onMounted(load)
       <a-form layout="vertical">
         <a-form-item label="物流单号">
           <a-input v-model:value="shipForm.logisticsNo" placeholder="不填则按预售单号生成" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+    <a-modal v-model:open="bindOpen" title="绑定溯源码" :confirm-loading="saving" @ok="bindTrace">
+      <a-form layout="vertical">
+        <a-form-item label="溯源码 id">
+          <a-textarea v-model:value="traceIds" :rows="3" placeholder="按份数填写，多个用逗号分隔" />
         </a-form-item>
       </a-form>
     </a-modal>
