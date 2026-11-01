@@ -487,6 +487,7 @@ onMounted(async () => {
       <a-space :size="4">
         <a-button type="link" @click="router.push('/admin/catalog')">商品类目</a-button>
         <a-button type="link" @click="router.push('/admin/marketing')">营销管理</a-button>
+        <a-button type="link" @click="router.push('/admin/trace')">溯源管理</a-button>
         <a-button type="link" @click="router.push('/admin/order')">订单交易</a-button>
         <a-button type="link" @click="router.push('/')">返回商城</a-button>
         <a-tag color="orange">{{ isAdmin ? '管理员' : '运营人员' }}</a-tag>

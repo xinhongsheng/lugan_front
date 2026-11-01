@@ -357,11 +357,11 @@ function resetSearch() {
 
 function askTrace() {
   const code = traceCode.value.trim()
-  if (!code) {
+  if (!/^YC\d{14}$/.test(code)) {
     message.warning('请输入 16 位溯源码')
     return
   }
-  message.info('公开验真即将开放。示例码 YC202501000011 可先在商品详情查看采摘批次。')
+  router.push('/t/' + code)
 }
 
 function resultShelf(product: API.ProductVO, index: number): Shelf {
@@ -691,7 +691,7 @@ onBeforeUnmount(stopBanner)
             <h2>一果一码溯源验真</h2>
             <p>扫码或输入 16 位溯源码，查看采摘、质检、入库、出库</p>
           </header>
-          <p class="sample">示例：YC202501000011</p>
+          <p class="sample">示例：YC20261101000001</p>
           <form class="trace-form" @submit.prevent="askTrace">
             <input v-model="traceCode" maxlength="32" placeholder="请输入 16 位溯源码" />
             <button type="submit">查询</button>

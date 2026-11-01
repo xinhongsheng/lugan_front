@@ -16,6 +16,8 @@ import AdminRefundAuditPage from '@/pages/AdminRefundAuditPage.vue'
 import AdminFreightListPage from '@/pages/AdminFreightListPage.vue'
 import AdminPresaleActivityPage from '@/pages/AdminPresaleActivityPage.vue'
 import AdminMarketingPage from '@/pages/AdminMarketingPage.vue'
+import AdminTracePage from '@/pages/AdminTracePage.vue'
+import TraceVerifyPage from '@/pages/TraceVerifyPage.vue'
 import AdminPresaleOrderPage from '@/pages/AdminPresaleOrderPage.vue'
 import AdminPaymentFlowPage from '@/pages/AdminPaymentFlowPage.vue'
 import PresalePage from '@/pages/PresalePage.vue'
@@ -106,6 +108,18 @@ const router = createRouter({
       name: '预售配置',
       meta: { title: '预售配置', hideInMenu: true },
       component: AdminPresaleActivityPage,
+    },
+    {
+      path: '/t/:code',
+      name: '溯源验真',
+      meta: { title: '溯源验真', hideInMenu: true },
+      component: TraceVerifyPage,
+    },
+    {
+      path: '/admin/trace',
+      name: '溯源管理',
+      meta: { title: '溯源管理', hideInMenu: true },
+      component: AdminTracePage,
     },
     {
       path: '/admin/marketing',
