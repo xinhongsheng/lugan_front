@@ -185,6 +185,8 @@ declare namespace API {
   type CartQuoteRequest = {
     addressId?: string
     province?: string
+    userCouponId?: string
+    useCoupon?: boolean
   }
 
   type CartQuoteVO = {
@@ -294,6 +296,7 @@ declare namespace API {
     quantity?: number
     addressId?: string
     province?: string
+    userCouponId?: string
   }
 
   type OrderIdRequest = {
@@ -303,6 +306,7 @@ declare namespace API {
   type OrderPayRequest = {
     id?: string
     payChannel?: string
+    userCouponId?: string
   }
 
   type OrderRefundRequest = {
@@ -520,6 +524,104 @@ declare namespace API {
     userName?: string
     userAvatar?: string
     userPhone?: string
+  }
+
+  type CouponClaimRequest = {
+    couponId?: string
+  }
+
+  type CouponVO = {
+    id?: string
+    couponName?: string
+    couponType?: string
+    discountAmount?: number
+    minAmount?: number
+    claimed?: boolean
+  }
+
+  type PromotionActionRequest = {
+    activityId?: string
+    teamId?: string
+    quantity?: number
+  }
+
+  type PromotionActivityVO = {
+    id?: string
+    activityName?: string
+    activityType?: string
+    productName?: string
+    salePrice?: number
+    originPrice?: number
+    stock?: number
+    groupSize?: number
+    minQuantity?: number
+  }
+
+  type GroupTeamVO = {
+    id?: string
+    activityId?: string
+    activityName?: string
+    productName?: string
+    salePrice?: number
+    needCount?: number
+    joinedCount?: number
+    remainCount?: number
+    percent?: number
+    teamStatus?: string
+    leader?: boolean
+    sharePath?: string
+    memberNames?: string[]
+  }
+
+  type MemberVO = {
+    pointBalance?: number
+    totalSpend?: number
+    levelCode?: string
+    levelName?: string
+    discountRate?: number
+    freeFreightAmount?: number
+    memberDay?: boolean
+    memberDayOff?: number
+  }
+
+  type PointLogVO = {
+    changeAmount?: number
+    reason?: string
+    createTime?: string
+  }
+
+  type PointRedeemRequest = {
+    points?: number
+  }
+
+  type BaseResponseCouponVOPage = {
+    code?: number
+    data?: { list?: CouponVO[]; total?: number | string }
+    message?: string
+  }
+
+  type BaseResponsePromotionPage = {
+    code?: number
+    data?: { list?: PromotionActivityVO[]; total?: number | string }
+    message?: string
+  }
+
+  type BaseResponseGroupPage = {
+    code?: number
+    data?: { list?: GroupTeamVO[]; total?: number | string }
+    message?: string
+  }
+
+  type BaseResponseGroupTeamVO = {
+    code?: number
+    data?: GroupTeamVO
+    message?: string
+  }
+
+  type BaseResponseMemberVO = {
+    code?: number
+    data?: MemberVO
+    message?: string
   }
 
   type UserVO = {

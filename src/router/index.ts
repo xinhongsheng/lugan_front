@@ -1,13 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomePage from '@/pages/home/HomePage.vue'
-import ProductDetailPage from '@/pages/product/ProductDetailPage.vue'
-import CartPage from '@/pages/cart/CartPage.vue'
-import OrderConfirmPage from '@/pages/order/OrderConfirmPage.vue'
-import OrderDetailPage from '@/pages/order/OrderDetailPage.vue'
-import UserLoginPage from '@/pages/user/UserLoginPage.vue'
-import UserRegisterPage from '@/pages/user/UserRegisterPage.vue'
-import UserResetPage from '@/pages/user/UserResetPage.vue'
-import UserProfilePage from '@/pages/user/UserProfilePage.vue'
+import HomePage from '@/pages/HomePage.vue'
+import ProductDetailPage from '@/pages/ProductDetailPage.vue'
+import CartPage from '@/pages/CartPage.vue'
+import OrderConfirmPage from '@/pages/OrderConfirmPage.vue'
+import OrderDetailPage from '@/pages/OrderDetailPage.vue'
+import UserLoginPage from '@/pages/UserLoginPage.vue'
+import UserRegisterPage from '@/pages/UserRegisterPage.vue'
+import UserResetPage from '@/pages/UserResetPage.vue'
+import UserProfilePage from '@/pages/UserProfilePage.vue'
+import PromotionPage from '@/pages/PromotionPage.vue'
+import AdminPage from '@/pages/AdminPage.vue'
+import AdminCatalogPage from '@/pages/AdminCatalogPage.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -59,6 +62,24 @@ const router = createRouter({
       name: '找回密码',
       meta: { title: '找回密码', hideInMenu: true },
       component: UserResetPage,
+    },
+    {
+      path: '/admin',
+      name: '系统管理',
+      meta: { title: '系统管理', hideInMenu: true },
+      component: AdminPage,
+    },
+    {
+      path: '/admin/catalog',
+      name: '商品类目',
+      meta: { title: '商品类目', hideInMenu: true },
+      component: AdminCatalogPage,
+    },
+    {
+      path: '/promotion',
+      name: '营销活动',
+      meta: { title: '营销活动', hideInMenu: true },
+      component: PromotionPage,
     },
     {
       path: '/user/profile',

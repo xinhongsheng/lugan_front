@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { listMyAddressVoByPage } from '@/api/addressController'
 import { checkoutCart, listMyCartVoByPage, quoteCart } from '@/api/cartController'
+import { listMyUserCouponVoByPage } from '@/api/userCouponController'
 
 const route = useRoute()
 const router = useRouter()
@@ -13,6 +14,9 @@ const addresses = ref<API.AddressVO[]>([])
 const rows = ref<API.CartVO[]>([])
 const quote = ref<API.CartQuoteVO>({})
 const addressId = ref<string>()
+const coupons = ref<API.UserCouponVO[]>([])
+const userCouponId = ref<string>()
+const useCoupon = ref(true)
 
 const money = (value?: number) => Number(value ?? 0).toFixed(2)
 
@@ -23,9 +27,10 @@ function addressText(item: API.AddressVO) {
 async function load() {
   loading.value = true
   try {
-    const [addressRes, cartRes] = await Promise.all([
+    const [addressRes, cartRes, couponRes] = await Promise.all([
       listMyAddressVoByPage({ current: 1, pageSize: 20 }),
       listMyCartVoByPage({ current: 1, pageSize: 50 }),
+      listMyUserCouponVoByPage({ current: 1, pageSize: 50 }),
     ])
     if (addressRes.data.code !== 0 || cartRes.data.code !== 0) {
       message.error(addressRes.data.message || cartRes.data.message || '订单确认加载失败')
@@ -33,6 +38,7 @@ async function load() {
     }
     addresses.value = addressRes.data.data?.list ?? []
     rows.value = (cartRes.data.data?.list ?? []).filter((item) => item.checked === 1)
+    coupons.value = (couponRes.data.data?.list ?? []).filter((item) => item.useStatus === 0)
     const preferred = addresses.value.find((item) => item.defaultFlag === 1) || addresses.value[0]
     addressId.value = preferred?.id
     await refreshQuote()
@@ -47,10 +53,33 @@ async function refreshQuote() {
   if (!addressId.value) {
     return
   }
-  const response = await quoteCart({ addressId: addressId.value })
+  const response = await quoteCart({
+    addressId: addressId.value,
+    useCoupon: useCoupon.value,
+    userCouponId: useCoupon.value ? userCouponId.value : undefined,
+  })
   if (response.data.code === 0 && response.data.data) {
     quote.value = response.data.data
+    if (useCoupon.value && !userCouponId.value && response.data.data.couponId) {
+      userCouponId.value = response.data.data.couponId
+    }
+  } else if (response.data.code !== 0 && response.data.code !== 40100) {
+    message.error(response.data.message || '优惠券不可用')
   }
+}
+
+function couponBlocked(item: API.UserCouponVO) {
+  return Number(quote.value.goodsAmount ?? 0) < Number(item.minAmount ?? 0)
+}
+
+function pickCoupon(id?: string) {
+  const hit = coupons.value.find((item) => item.id === id)
+  if (hit && couponBlocked(hit)) {
+    return
+  }
+  useCoupon.value = !!id
+  userCouponId.value = id
+  refreshQuote()
 }
 
 async function submit() {
@@ -64,7 +93,11 @@ async function submit() {
   }
   acting.value = true
   try {
-    const response = await checkoutCart({ addressId: addressId.value })
+    const response = await checkoutCart({
+      addressId: addressId.value,
+      useCoupon: useCoupon.value,
+      userCouponId: useCoupon.value ? userCouponId.value : undefined,
+    })
     if (response.data.code === 0 && response.data.data) {
       message.success('订单已生成，请支付')
       await router.push({ path: '/order/detail', query: { id: response.data.data } })
@@ -118,6 +151,21 @@ onMounted(load)
       <a-card :bordered="false" class="sheet">
         <div class="sum"><span>商品总额</span><strong>¥{{ money(quote.goodsAmount) }}</strong></div>
         <div class="sum"><span>运费</span><strong>¥{{ money(quote.freightAmount) }}</strong></div>
+        <div class="coupon-pick">
+          <span>优惠券</span>
+          <button type="button" :class="{ on: !useCoupon }" @click="pickCoupon()">不使用</button>
+          <button
+            v-for="item in coupons"
+            :key="item.id"
+            type="button"
+            :disabled="couponBlocked(item)"
+            :class="{ on: useCoupon && userCouponId === item.id, off: couponBlocked(item) }"
+            :title="couponBlocked(item) ? `未满 ${item.minAmount} 元` : ''"
+            @click="pickCoupon(item.id)"
+          >
+            {{ item.couponName }} 减{{ item.discountAmount }}（满{{ item.minAmount }}）
+          </button>
+        </div>
         <div class="sum"><span>优惠 {{ quote.couponName || '无' }}</span><strong>-¥{{ money(quote.discountAmount) }}</strong></div>
         <p class="rule">{{ quote.ruleText || route.query.province }}</p>
         <div class="pay">
@@ -173,6 +221,37 @@ h1 {
 .rule {
   margin: 4px 0 0;
   color: var(--muted);
+}
+
+.coupon-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.coupon-pick button {
+  border: 1px solid #f3d7b0;
+  border-radius: 14px;
+  background: #fff;
+  color: #e8870a;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.coupon-pick button.on {
+  background: #f39800;
+  border-color: #f39800;
+  color: #fff;
+}
+
+.coupon-pick button.off,
+.coupon-pick button:disabled {
+  background: #d9d9d9;
+  border-color: #d9d9d9;
+  color: #8c8c8c;
+  cursor: not-allowed;
 }
 
 .pay span {

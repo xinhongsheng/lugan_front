@@ -2,27 +2,32 @@
 import { reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
-import { userRegister } from '@/api/userController'
-import UserAuthShell from '@/components/user/UserAuthShell.vue'
+import { resetPassword } from '@/api/userController'
+import UserAuthShell from '@/components/UserAuthShell.vue'
 
 const router = useRouter()
 const route = useRoute()
 const loading = ref(false)
-const showPassword = ref(false)
 const errorText = ref('')
-const form = reactive<API.UserRegisterRequest>({
+const form = reactive<API.UserResetPasswordRequest>({
   userAccount: '',
-  userPassword: '',
+  userPhone: '',
+  newPassword: '',
   checkPassword: '',
 })
 
 async function submit() {
   errorText.value = ''
   const account = form.userAccount?.trim() ?? ''
-  const password = form.userPassword ?? ''
+  const phone = form.userPhone?.trim() ?? ''
+  const password = form.newPassword ?? ''
   const checkPassword = form.checkPassword ?? ''
-  if (account.length < 4) {
-    errorText.value = '账号至少 4 位'
+  if (!account) {
+    errorText.value = '请输入账号'
+    return
+  }
+  if (!/^1\d{10}$/.test(phone)) {
+    errorText.value = '请输入 11 位注册手机号'
     return
   }
   if (password.length < 8) {
@@ -34,18 +39,19 @@ async function submit() {
     return
   }
   form.userAccount = account
+  form.userPhone = phone
   loading.value = true
   try {
-    const response = await userRegister(form)
+    const response = await resetPassword(form)
     const body = response.data
     if (body.code !== 0) {
-      message.error(body.message || '注册失败')
+      message.error(body.message || '重置失败')
       return
     }
-    message.success('注册成功，请登录')
+    message.success('密码已更新，请登录')
     await router.push({ path: '/user/login', query: route.query })
   } catch {
-    message.error('注册失败')
+    message.error('重置失败')
   } finally {
     loading.value = false
   }
@@ -53,7 +59,7 @@ async function submit() {
 </script>
 
 <template>
-  <div id="user-register-page">
+  <div id="user-reset-page">
     <UserAuthShell>
       <form class="auth-form" @submit.prevent="submit">
         <label class="field">
@@ -69,12 +75,22 @@ async function submit() {
               />
             </svg>
           </span>
+          <input v-model="form.userAccount" autocomplete="username" placeholder="请输入账号" aria-label="账号" />
+        </label>
+        <label class="field">
+          <span class="lead" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <rect x="7" y="3" width="10" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.7" />
+              <path d="M11 18h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+            </svg>
+          </span>
           <input
-            v-model="form.userAccount"
-            name="userAccount"
-            autocomplete="username"
-            placeholder="请输入账号，至少 4 位"
-            aria-label="账号"
+            v-model="form.userPhone"
+            inputmode="numeric"
+            maxlength="11"
+            autocomplete="tel"
+            placeholder="请输入注册手机号"
+            aria-label="注册手机号"
           />
         </label>
         <label class="field">
@@ -85,39 +101,12 @@ async function submit() {
             </svg>
           </span>
           <input
-            v-model="form.userPassword"
-            name="userPassword"
-            :type="showPassword ? 'text' : 'password'"
+            v-model="form.newPassword"
+            type="password"
             autocomplete="new-password"
-            placeholder="请输入密码，至少 8 位"
-            aria-label="密码"
+            placeholder="请输入新密码，至少 8 位"
+            aria-label="新密码"
           />
-          <button
-            class="trail"
-            type="button"
-            :aria-label="showPassword ? '隐藏密码' : '显示密码'"
-            @click="showPassword = !showPassword"
-          >
-            <svg v-if="showPassword" viewBox="0 0 24 24">
-              <path d="M3 3l18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
-              <path
-                d="M2 12s3.5-6 10-6c1.6 0 3 .3 4.2.8M22 12s-3.5 6-10 6c-1.6 0-3-.3-4.2-.8"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.7"
-                stroke-linecap="round"
-              />
-            </svg>
-            <svg v-else viewBox="0 0 24 24">
-              <path
-                d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.7"
-              />
-              <circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.7" />
-            </svg>
-          </button>
         </label>
         <label class="field">
           <span class="lead" aria-hidden="true">
@@ -128,18 +117,17 @@ async function submit() {
           </span>
           <input
             v-model="form.checkPassword"
-            name="checkPassword"
             type="password"
             autocomplete="new-password"
-            placeholder="请再次输入密码"
-            aria-label="确认密码"
+            placeholder="请再次输入新密码"
+            aria-label="确认新密码"
           />
         </label>
         <p v-if="errorText" class="form-error" role="alert">{{ errorText }}</p>
-        <button class="submit" type="submit" :disabled="loading">{{ loading ? '注册中…' : '立即注册' }}</button>
+        <button class="submit" type="submit" :disabled="loading">{{ loading ? '提交中…' : '重置密码' }}</button>
         <p class="switch">
-          已有账号？
-          <router-link :to="{ path: '/user/login', query: route.query }">立即登录</router-link>
+          想起密码了？
+          <router-link :to="{ path: '/user/login', query: route.query }">返回登录</router-link>
         </p>
       </form>
     </UserAuthShell>
@@ -147,7 +135,7 @@ async function submit() {
 </template>
 
 <style scoped>
-#user-register-page {
+#user-reset-page {
   min-height: 100%;
 }
 </style>

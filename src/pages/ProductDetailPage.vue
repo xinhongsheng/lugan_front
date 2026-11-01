@@ -7,6 +7,7 @@ import { listReviewVoByPage } from '@/api/reviewController'
 import { calcFreight } from '@/api/freightController'
 import { addCart } from '@/api/cartController'
 import { addOrder } from '@/api/tradeOrderController'
+import { listMyUserCouponVoByPage } from '@/api/userCouponController'
 import { addFavorite } from '@/api/favoriteController'
 import { luganFruitSvg } from '@/constants/taste'
 
@@ -20,6 +21,8 @@ const quote = ref<API.FreightQuoteVO>({})
 const skuId = ref<string>()
 const quantity = ref(1)
 const province = ref('福建省')
+const coupons = ref<API.UserCouponVO[]>([])
+const userCouponId = ref<string>()
 
 const provinces = [
   { label: '福建省内', value: '福建省' },
@@ -39,6 +42,15 @@ const priceText = computed(() => {
 })
 
 const priceUnit = computed(() => (currentSku.value?.priceMode === 'jin' ? '/斤' : '/件'))
+
+const goodsAmount = computed(() => {
+  const price = Number(currentSku.value?.salePrice ?? detail.value.price ?? 0)
+  return price * Number(quantity.value || 1)
+})
+
+function couponBlocked(item: API.UserCouponVO) {
+  return goodsAmount.value < Number(item.minAmount ?? 0)
+}
 
 const stock = computed(() => currentSku.value?.stock ?? 0)
 
@@ -137,6 +149,7 @@ async function buyNow() {
       skuId: skuId.value,
       quantity: quantity.value,
       province: province.value,
+      userCouponId: userCouponId.value,
     })
     if (response.data.code === 0) {
       message.success('已生成待付款订单')
@@ -175,9 +188,18 @@ async function collect() {
 
 watch([skuId, quantity, province], () => {
   refreshFreight()
+  const current = coupons.value.find((item) => item.id === userCouponId.value)
+  if (current && couponBlocked(current)) {
+    userCouponId.value = undefined
+  }
 })
 
-onMounted(loadDetail)
+onMounted(() => {
+  loadDetail()
+  listMyUserCouponVoByPage({ current: 1, pageSize: 50 }).then((response) => {
+    coupons.value = (response.data.data?.list ?? []).filter((item) => item.useStatus === 0)
+  })
+})
 watch(
   () => route.query.id,
   () => {
@@ -222,6 +244,20 @@ watch(
               · 应付 ¥{{ Number(quote.payAmount ?? 0).toFixed(2) }}
             </p>
             <p class="rule">{{ detail.freightText || quote.ruleText }}</p>
+            <div class="coupon-pick">
+              <button type="button" :class="{ on: !userCouponId }" @click="userCouponId = undefined">不用券</button>
+              <button
+                v-for="item in coupons"
+                :key="item.id"
+                type="button"
+                :disabled="couponBlocked(item)"
+                :class="{ on: userCouponId === item.id, off: couponBlocked(item) }"
+                :title="couponBlocked(item) ? `未满 ${item.minAmount} 元` : ''"
+                @click="userCouponId = item.id"
+              >
+                {{ item.couponName }} 减{{ item.discountAmount }}
+              </button>
+            </div>
             <div class="actions">
               <a-button :disabled="stock < 1" :loading="acting" @click="submitCart">加入购物车</a-button>
               <a-button type="primary" :disabled="stock < 1" :loading="acting" @click="buyNow">立即购买</a-button>
@@ -342,6 +378,36 @@ h1 {
   align-items: center;
   gap: 10px;
   margin-top: 12px;
+}
+
+.coupon-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.coupon-pick button {
+  border: 1px solid #f3d7b0;
+  border-radius: 14px;
+  background: #fff;
+  color: #e8870a;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.coupon-pick button.on {
+  background: #f39800;
+  border-color: #f39800;
+  color: #fff;
+}
+
+.coupon-pick button.off,
+.coupon-pick button:disabled {
+  background: #d9d9d9;
+  border-color: #d9d9d9;
+  color: #8c8c8c;
+  cursor: not-allowed;
 }
 
 .sku {

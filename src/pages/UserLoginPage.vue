@@ -3,7 +3,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { userLogin } from '@/api/userController'
-import UserAuthShell from '@/components/user/UserAuthShell.vue'
+import UserAuthShell from '@/components/UserAuthShell.vue'
 
 const REMEMBER_KEY = 'lugan_login_account'
 const CAPTCHA_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import AuthBasket from '@/components/user/AuthBasket.vue'
-import AuthScene from '@/components/user/AuthScene.vue'
+import AuthBasket from '@/components/AuthBasket.vue'
+import AuthScene from '@/components/AuthScene.vue'
 
 const route = useRoute()
 

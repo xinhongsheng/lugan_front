@@ -12,6 +12,7 @@ import {
 } from '@/api/tradeOrderController'
 import { addReview, uploadReviewImage } from '@/api/reviewController'
 import { ORDER_STATUS_MAP, PAY_CHANNEL_MAP, REFUND_STATUS_MAP } from '@/constants/order'
+import { listMyUserCouponVoByPage } from '@/api/userCouponController'
 
 const route = useRoute()
 const loading = ref(false)
@@ -22,6 +23,8 @@ const reviewContent = ref('')
 const reviewScore = ref(5)
 const reviewImages = ref<string[]>([])
 const reviewProductId = ref<string>()
+const coupons = ref<API.UserCouponVO[]>([])
+const userCouponId = ref<string>()
 
 const money = (value?: number) => Number(value ?? 0).toFixed(2)
 const statusText = computed(() => ORDER_STATUS_MAP[detail.value.orderStatus as keyof typeof ORDER_STATUS_MAP] || detail.value.orderStatus || '')
@@ -53,6 +56,12 @@ async function load() {
     }
     detail.value = response.data.data
     reviewProductId.value = response.data.data.itemList?.[0]?.productId
+    if (response.data.data.orderStatus === 'unpaid' && Number(response.data.data.discountAmount ?? 0) === 0) {
+      const couponRes = await listMyUserCouponVoByPage({ current: 1, pageSize: 50 })
+      coupons.value = (couponRes.data.data?.list ?? []).filter((item) => item.useStatus === 0)
+    } else {
+      coupons.value = []
+    }
   } catch {
     message.error('订单加载失败')
   } finally {
@@ -82,8 +91,15 @@ async function run(action: () => Promise<{ data: { code?: number; message?: stri
   }
 }
 
+function couponBlocked(item: API.UserCouponVO) {
+  return Number(detail.value.goodsAmount ?? 0) < Number(item.minAmount ?? 0)
+}
+
 function pay(channel: string) {
-  return run(() => payOrder({ id: detail.value.id, payChannel: channel }), channel === 'alipay' ? '支付宝模拟支付成功' : '微信模拟支付成功')
+  return run(
+    () => payOrder({ id: detail.value.id, payChannel: channel, userCouponId: userCouponId.value }),
+    channel === 'alipay' ? '支付宝模拟支付成功' : '微信模拟支付成功',
+  )
 }
 
 function cancel() {
@@ -175,6 +191,22 @@ watch(() => route.query.id, load)
       </a-card>
 
       <a-card v-if="detail.orderStatus === 'unpaid'" title="模拟支付" :bordered="false" class="sheet">
+        <div v-if="Number(detail.discountAmount ?? 0) === 0" class="coupon-pick">
+          <span>使用优惠券</span>
+          <button type="button" :class="{ on: !userCouponId }" @click="userCouponId = undefined">不使用</button>
+          <button
+            v-for="item in coupons"
+            :key="item.id"
+            type="button"
+            :disabled="couponBlocked(item)"
+            :class="{ on: userCouponId === item.id, off: couponBlocked(item) }"
+            :title="couponBlocked(item) ? `未满 ${item.minAmount} 元` : ''"
+            @click="userCouponId = item.id"
+          >
+            {{ item.couponName }} 减{{ item.discountAmount }}（满{{ item.minAmount }}）
+          </button>
+          <p v-if="coupons.length === 0" class="meta">暂无未使用的优惠券，可先到营销活动领取</p>
+        </div>
         <a-space>
           <a-button type="primary" :loading="acting" @click="pay('alipay')">支付宝支付</a-button>
           <a-button :loading="acting" @click="pay('wechat')">微信支付</a-button>
@@ -246,6 +278,37 @@ h1 {
 
 .warn {
   color: #9a3412;
+}
+
+.coupon-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.coupon-pick button {
+  border: 1px solid #f3d7b0;
+  border-radius: 14px;
+  background: #fff;
+  color: #e8870a;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.coupon-pick button.on {
+  background: #f39800;
+  border-color: #f39800;
+  color: #fff;
+}
+
+.coupon-pick button.off,
+.coupon-pick button:disabled {
+  background: #d9d9d9;
+  border-color: #d9d9d9;
+  color: #8c8c8c;
+  cursor: not-allowed;
 }
 
 .line,

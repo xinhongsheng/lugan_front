@@ -28,7 +28,9 @@ const isFlush = computed(
     route.path.startsWith('/user/login') ||
     route.path.startsWith('/user/register') ||
     route.path.startsWith('/user/reset') ||
-    route.path.startsWith('/user/profile'),
+    route.path.startsWith('/user/profile') ||
+    route.path.startsWith('/promotion') ||
+    route.path.startsWith('/admin'),
 )
 
 function avatarSrc(path?: string) {

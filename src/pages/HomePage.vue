@@ -37,7 +37,7 @@ const NAVS = [
   { key: 'local', label: '土特产', action: 'search', word: '土特产' },
   { key: 'presale', label: '采摘季预售', action: 'anchor', id: 'presale' },
   { key: 'trace', label: '一果一码验真', action: 'anchor', id: 'trace' },
-  { key: 'group', label: '团购批发', action: 'anchor', id: 'group' },
+  { key: 'group', label: '团购批发', action: 'route', path: '/promotion' },
   { key: 'news', label: '资讯公告', action: 'anchor', id: 'news' },
 ]
 
@@ -176,6 +176,10 @@ function onNav(item: (typeof NAVS)[number]) {
     goAnchor(item.id)
     return
   }
+  if (item.action === 'route' && item.path) {
+    router.push(item.path)
+    return
+  }
   if (item.word) {
     quickSearch(item.word)
   }
@@ -294,6 +298,7 @@ onMounted(() => {
           <router-link v-if="!loginUser" to="/user/login">登录 / 注册</router-link>
           <router-link v-else to="/user/profile">{{ loginUser.userName || loginUser.userAccount }}</router-link>
           <router-link to="/user/profile">个人中心</router-link>
+          <router-link v-if="loginUser && (loginUser.userRole === 'admin' || loginUser.userRole === 'operator')" to="/admin">管理后台</router-link>
           <router-link to="/user/login">商家中心</router-link>
           <router-link to="/user/profile">我的订单</router-link>
           <a href="mailto:service@yongchun-lugan.com">客服咨询</a>
@@ -584,7 +589,7 @@ onMounted(() => {
           <li>要求大货可谈</li>
           <li>专属客服 · 一单一跟</li>
         </ul>
-        <button type="button" @click="quickSearch('10斤')">立即咨询团购</button>
+        <button type="button" @click="router.push('/promotion')">进入团购批发</button>
       </section>
 
       <section class="promises">

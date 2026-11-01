@@ -268,6 +268,7 @@ onMounted(async () => {
         <router-link to="/">首页</router-link>
         <span class="active">个人中心</span>
         <router-link to="/cart">购物车</router-link>
+        <router-link to="/promotion">营销活动</router-link>
       </div>
     </nav>
 
