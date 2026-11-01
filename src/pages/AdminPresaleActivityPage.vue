@@ -40,7 +40,7 @@ const columns: TableColumnType[] = [
 ]
 
 async function loadProducts() {
-  const response = await listProductVoByPage({ current: 1, pageSize: 50 })
+  const response = await listProductVoByPage({ current: 1, pageSize: 20 })
   products.value = response.data.code === 0 ? response.data.data?.list ?? [] : []
 }
 
@@ -138,6 +138,7 @@ onMounted(async () => {
   <page-container title="采摘季预售">
     <template #extra>
       <a-space :size="4">
+        <a-button type="link" @click="router.push('/admin/presale-order')">预售订单</a-button>
         <a-button type="link" @click="router.push('/admin/order')">订单</a-button>
         <a-button type="link" @click="router.push('/')">返回商城</a-button>
       </a-space>

@@ -3,6 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } 
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { getHomeVo } from '@/api/homeController'
+import { listOpenPresaleActivityVoByPage } from '@/api/presaleActivityController'
 import { listProductVoByPage } from '@/api/productController'
 import { listMyCartVoByPage } from '@/api/cartController'
 import { getLoginUser } from '@/api/userController'
@@ -21,6 +22,8 @@ type Shelf = {
 }
 
 const router = useRouter()
+const presaleList = ref<API.PresaleActivityVO[]>([])
+const leadPresale = computed(() => presaleList.value[0])
 
 const CATS = [
   { name: '精品果（大果/统货）', word: '精品果' },
@@ -266,6 +269,15 @@ function onNav(item: (typeof NAVS)[number]) {
   }
 }
 
+async function loadPresale() {
+  try {
+    const response = await listOpenPresaleActivityVoByPage({ current: 1, pageSize: 4 })
+    presaleList.value = response.data.code === 0 ? response.data.data?.list ?? [] : []
+  } catch {
+    presaleList.value = []
+  }
+}
+
 async function loadHome() {
   try {
     const response = await getHomeVo()
@@ -373,6 +385,7 @@ watch(banners, (list) => {
 
 onMounted(() => {
   loadHome()
+  loadPresale()
   loadSession()
 })
 
@@ -658,16 +671,20 @@ onBeforeUnmount(stopBanner)
           </header>
           <div class="presale">
             <span class="thumb gift" :style="{ backgroundImage: `url(${HOME_ART.gift})` }" />
-            <dl>
-              <div><dt>预售产品</dt><dd>永春芦柑 · 核心产区礼盒</dd></div>
-              <div><dt>预售开放</dt><dd>2025年01月15日</dd></div>
-              <div><dt>预计发货</dt><dd>2025年01月15日起（分批发送）</dd></div>
-              <div><dt>定金比例</dt><dd>20%（定金不抵尾款）</dd></div>
-              <div><dt>尾款截止</dt><dd>2025年01月31日 24:00</dd></div>
-              <div><dt>剩余数量</dt><dd>3,200 箱（已预订 1,800 套）</dd></div>
+            <dl v-if="leadPresale">
+              <div><dt>预售产品</dt><dd>{{ leadPresale.productName || leadPresale.title }}</dd></div>
+              <div><dt>开摘日</dt><dd>{{ leadPresale.openPickDate }}</dd></div>
+              <div><dt>预计发货</dt><dd>{{ leadPresale.expectShipDate }}</dd></div>
+              <div><dt>定金比例</dt><dd>{{ Math.round(Number(leadPresale.depositRatio || 0) * 100) }}%，尾款为总额减去定金</dd></div>
+              <div><dt>定金截止</dt><dd>{{ leadPresale.depositDeadline }}</dd></div>
+              <div><dt>尾款截止</dt><dd>{{ leadPresale.balanceDeadline }}</dd></div>
+              <div><dt>剩余数量</dt><dd>{{ leadPresale.remainStock ?? 0 }} 份（已订 {{ leadPresale.soldStock ?? 0 }} 份）</dd></div>
+            </dl>
+            <dl v-else>
+              <div><dt>预售批次</dt><dd>当前没有进行中的采摘批次</dd></div>
             </dl>
           </div>
-          <button type="button" class="solid" @click="quickSearch('礼盒')">立即预订</button>
+          <button type="button" class="solid" @click="router.push('/presale')">立即预订</button>
         </article>
         <article id="trace" class="panel">
           <header class="block-head">

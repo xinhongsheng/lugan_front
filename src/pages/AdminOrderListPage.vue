@@ -133,6 +133,8 @@ onMounted(load)
         <a-button type="link" @click="router.push('/admin/refund')">退款审核</a-button>
         <a-button type="link" @click="router.push('/admin/freight')">运费模板</a-button>
         <a-button type="link" @click="router.push('/admin/presale')">预售配置</a-button>
+        <a-button type="link" @click="router.push('/admin/presale-order')">预售订单</a-button>
+        <a-button type="link" @click="router.push('/admin/payment')">支付流水</a-button>
         <a-button type="link" @click="router.push('/')">返回商城</a-button>
       </a-space>
     </template>

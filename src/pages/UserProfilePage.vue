@@ -16,10 +16,13 @@ import {
 } from '@/api/addressController'
 import { deleteFavorite, listMyFavoriteVoByPage } from '@/api/favoriteController'
 import { listMyTradeOrderVoByPage } from '@/api/tradeOrderController'
+import { confirmPresaleOrder, finishPresaleOrder, listMyPresaleOrderVoByPage, payBalance, payDeposit } from '@/api/presaleOrderController'
+import { listMyPaymentFlowVoByPage } from '@/api/paymentFlowController'
 import { listMyReviewVoByPage } from '@/api/reviewController'
 import { listMyUserCouponVoByPage } from '@/api/userCouponController'
 import { listMyMessageVoByPage, readMessage } from '@/api/messageController'
-import { ORDER_STATUS_MAP } from '@/constants/order'
+import { ORDER_STATUS_MAP, PAY_CHANNEL_OPTIONS } from '@/constants/order'
+import { PRESALE_STATUS_MAP } from '@/constants/presale'
 import { HOME_ART } from '@/constants/homeArt'
 import { fileUrl } from '@/utils/fileUrl'
 
@@ -33,6 +36,17 @@ const profile = reactive<API.UserUpdateRequest>({
 const addresses = ref<API.AddressVO[]>([])
 const favorites = ref<API.FavoriteVO[]>([])
 const orders = ref<API.TradeOrderVO[]>([])
+const presaleOrders = ref<API.PresaleOrderVO[]>([])
+const flows = ref<API.PaymentFlowVO[]>([])
+const presaleActing = ref(false)
+const payOpen = ref(false)
+const finishOpen = ref(false)
+const payTarget = ref<API.PresaleOrderVO>()
+const payKind = ref<'deposit' | 'balance'>('deposit')
+const payChannel = ref('alipay')
+const finishTarget = ref<API.PresaleOrderVO>()
+const finishScore = ref(5)
+const finishContent = ref('')
 const reviews = ref<API.ReviewVO[]>([])
 const coupons = ref<API.UserCouponVO[]>([])
 const messages = ref<API.MessageVO[]>([])
@@ -54,6 +68,8 @@ const MENUS = [
   { key: 'profile', label: '我的资料' },
   { key: 'address', label: '收货地址' },
   { key: 'order', label: '我的订单' },
+  { key: 'presale', label: '我的预售' },
+  { key: 'flow', label: '支付流水' },
   { key: 'favorite', label: '我的收藏' },
   { key: 'review', label: '我的评价' },
   { key: 'coupon', label: '优惠券' },
@@ -84,13 +100,15 @@ async function loadUser() {
 }
 
 async function loadLists() {
-  const [addressRes, favoriteRes, orderRes, reviewRes, couponRes, messageRes] = await Promise.all([
+  const [addressRes, favoriteRes, orderRes, reviewRes, couponRes, messageRes, presaleRes, flowRes] = await Promise.all([
     listMyAddressVoByPage(pageQuery),
     listMyFavoriteVoByPage(pageQuery),
     listMyTradeOrderVoByPage(pageQuery),
     listMyReviewVoByPage(pageQuery),
     listMyUserCouponVoByPage(pageQuery),
     listMyMessageVoByPage(pageQuery),
+    listMyPresaleOrderVoByPage(pageQuery),
+    listMyPaymentFlowVoByPage(pageQuery),
   ])
   addresses.value = addressRes.data.data?.list ?? []
   favorites.value = favoriteRes.data.data?.list ?? []
@@ -98,6 +116,82 @@ async function loadLists() {
   reviews.value = reviewRes.data.data?.list ?? []
   coupons.value = couponRes.data.data?.list ?? []
   messages.value = messageRes.data.data?.list ?? []
+  presaleOrders.value = presaleRes.data.data?.list ?? []
+  flows.value = flowRes.data.data?.list ?? []
+}
+
+function presaleText(status?: string) {
+  return PRESALE_STATUS_MAP[status || ''] || status || '未知'
+}
+
+function openPay(item: API.PresaleOrderVO, kind: 'deposit' | 'balance') {
+  payTarget.value = item
+  payKind.value = kind
+  payChannel.value = 'alipay'
+  payOpen.value = true
+}
+
+async function submitPay() {
+  if (!payTarget.value?.id) {
+    return
+  }
+  presaleActing.value = true
+  try {
+    const payload = { id: payTarget.value.id, payChannel: payChannel.value }
+    const response = payKind.value === 'deposit' ? await payDeposit(payload) : await payBalance(payload)
+    if (response.data.code !== 0) {
+      message.error(response.data.message || '支付失败')
+      return
+    }
+    message.success(payKind.value === 'deposit' ? '定金已支付' : '尾款已支付')
+    payOpen.value = false
+    await loadLists()
+  } finally {
+    presaleActing.value = false
+  }
+}
+
+async function confirmPresale(id?: string) {
+  if (!id) {
+    return
+  }
+  const response = await confirmPresaleOrder({ id })
+  if (response.data.code !== 0) {
+    message.error(response.data.message || '确认收货失败')
+    return
+  }
+  message.success('已确认收货，可以评价')
+  await loadLists()
+}
+
+function openFinish(item: API.PresaleOrderVO) {
+  finishTarget.value = item
+  finishScore.value = 5
+  finishContent.value = ''
+  finishOpen.value = true
+}
+
+async function submitFinish() {
+  if (!finishTarget.value?.id) {
+    return
+  }
+  presaleActing.value = true
+  try {
+    const response = await finishPresaleOrder({
+      id: finishTarget.value.id,
+      score: finishScore.value,
+      content: finishContent.value,
+    })
+    if (response.data.code !== 0) {
+      message.error(response.data.message || '评价失败')
+      return
+    }
+    message.success('评价已提交，预售单已完成')
+    finishOpen.value = false
+    await loadLists()
+  } finally {
+    presaleActing.value = false
+  }
 }
 
 async function saveProfile() {
@@ -366,6 +460,36 @@ onMounted(async () => {
             </article>
           </template>
 
+          <template v-else-if="section === 'presale'">
+            <h2>我的预售</h2>
+            <a-empty v-if="presaleOrders.length === 0" description="还没有预售订单" />
+            <article v-for="item in presaleOrders" :key="item.id" class="row">
+              <div>
+                <strong>{{ item.activityTitle || item.orderNo }}</strong>
+                <p>{{ presaleText(item.presaleStatus) }} · 定金 ¥{{ item.depositAmount }} · 尾款 ¥{{ item.balanceAmount }}</p>
+                <p v-if="item.logisticsNo">物流 {{ item.logisticsNo }}</p>
+              </div>
+              <div class="ops">
+                <button v-if="item.presaleStatus === 'unpaidDeposit'" type="button" @click="openPay(item, 'deposit')">付定金</button>
+                <button v-if="item.presaleStatus === 'unpaidBalance'" type="button" @click="openPay(item, 'balance')">付尾款</button>
+                <button v-if="item.presaleStatus === 'unreceived'" type="button" @click="confirmPresale(item.id)">确认收货</button>
+                <button v-if="item.presaleStatus === 'uncommented'" type="button" @click="openFinish(item)">评价</button>
+              </div>
+            </article>
+          </template>
+
+          <template v-else-if="section === 'flow'">
+            <h2>支付流水</h2>
+            <a-empty v-if="flows.length === 0" description="还没有支付记录" />
+            <article v-for="item in flows" :key="item.id" class="row">
+              <div>
+                <strong>{{ item.flowNo }}</strong>
+                <p>{{ item.orderType === 'presale' ? '预售' : '现货' }} · {{ item.bizType === 'deposit' ? '定金' : item.bizType === 'balance' ? '尾款' : '一次付清' }} · ¥{{ item.amount }}</p>
+              </div>
+              <em>{{ item.payTime }}</em>
+            </article>
+          </template>
+
           <template v-else-if="section === 'review'">
             <h2>我的评价</h2>
             <a-empty v-if="reviews.length === 0" description="还没有评价" />
@@ -405,6 +529,15 @@ onMounted(async () => {
       </div>
     </main>
 
+    <a-modal v-model:open="payOpen" :title="payKind === 'deposit' ? '支付定金' : '支付尾款'" :confirm-loading="presaleActing" ok-text="确认支付" @ok="submitPay">
+      <a-select v-model:value="payChannel" :options="PAY_CHANNEL_OPTIONS" style="width: 100%" />
+    </a-modal>
+    <a-modal v-model:open="finishOpen" title="预售评价" :confirm-loading="presaleActing" ok-text="提交" @ok="submitFinish">
+      <a-form layout="vertical">
+        <a-form-item label="评分"><a-rate v-model:value="finishScore" /></a-form-item>
+        <a-form-item label="内容"><a-textarea v-model:value="finishContent" :rows="3" :maxlength="500" /></a-form-item>
+      </a-form>
+    </a-modal>
     <a-modal v-model:open="addressOpen" :title="editingAddressId ? '编辑地址' : '新增地址'" ok-text="保存" @ok="saveAddress">
       <a-form layout="vertical" :model="addressForm">
         <a-form-item label="收货人">

@@ -47,6 +47,21 @@ export async function listPresaleActivityVoByPage(
   })
 }
 
+/** 此处后端没有提供注释 POST /presaleActivity/open/list/vo */
+export async function listOpenPresaleActivityVoByPage(
+  body: API.PageRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponsePageResultPresaleActivityVO>('/presaleActivity/open/list/vo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
 /** 此处后端没有提供注释 POST /presaleActivity/update */
 export async function updatePresaleActivity(
   body: API.PresaleActivitySaveRequest,

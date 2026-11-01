@@ -129,9 +129,23 @@ declare namespace API {
     traceId?: string
   }
 
+  type BaseResponseInteger = {
+    code?: number
+    data?: number
+    message?: string
+    traceId?: string
+  }
+
   type BaseResponseLong = {
     code?: number
     data?: string
+    message?: string
+    traceId?: string
+  }
+
+  type BaseResponseMapStringObject = {
+    code?: number
+    data?: Record<string, any>
     message?: string
     traceId?: string
   }
@@ -174,6 +188,13 @@ declare namespace API {
   type BaseResponsePageResultCategoryVO = {
     code?: number
     data?: PageResultCategoryVO
+    message?: string
+    traceId?: string
+  }
+
+  type BaseResponsePageResultCoupon = {
+    code?: number
+    data?: PageResultCoupon
     message?: string
     traceId?: string
   }
@@ -258,6 +279,20 @@ declare namespace API {
   type BaseResponsePageResultPresaleOrderVO = {
     code?: number
     data?: PageResultPresaleOrderVO
+    message?: string
+    traceId?: string
+  }
+
+  type BaseResponsePageResultPriceBatch = {
+    code?: number
+    data?: PageResultPriceBatch
+    message?: string
+    traceId?: string
+  }
+
+  type BaseResponsePageResultPriceChangeLog = {
+    code?: number
+    data?: PageResultPriceChangeLog
     message?: string
     traceId?: string
   }
@@ -449,8 +484,46 @@ declare namespace API {
     children?: CategoryVO[]
   }
 
+  type Coupon = {
+    id?: string
+    couponName?: string
+    couponType?: string
+    discountAmount?: number
+    minAmount?: number
+    validStart?: string
+    validEnd?: string
+    totalCount?: number
+    claimedCount?: number
+    perUserLimit?: number
+    scopeType?: string
+    couponStatus?: string
+    publishStatus?: number
+    createTime?: string
+    updateTime?: string
+    isDelete?: number
+  }
+
   type CouponClaimRequest = {
     couponId?: string
+  }
+
+  type CouponGrantRequest = {
+    couponId?: string
+    userIds?: string[]
+  }
+
+  type CouponSaveRequest = {
+    id?: string
+    couponName?: string
+    couponType?: string
+    discountAmount?: number
+    minAmount?: number
+    validStart?: string
+    validEnd?: string
+    totalCount?: number
+    perUserLimit?: number
+    scopeType?: string
+    scopeIds?: string[]
   }
 
   type CouponVO = {
@@ -577,6 +650,23 @@ declare namespace API {
     originList?: ArticleVO[]
   }
 
+  type MemberRuleSaveRequest = {
+    orderPointRate?: number
+    reviewPoint?: number
+    photoPoint?: number
+    pointPerYuan?: number
+    maxDeductRate?: number
+    maxDeductAmount?: number
+    memberDayType?: string
+    memberDayValue?: number
+    memberDayDiscount?: number
+    memberDayPointRate?: number
+    silverSpend?: number
+    silverDiscount?: number
+    goldSpend?: number
+    goldDiscount?: number
+  }
+
   type MemberVO = {
     pointBalance?: number
     totalSpend?: number
@@ -695,6 +785,11 @@ declare namespace API {
     total?: string
   }
 
+  type PageResultCoupon = {
+    list?: Coupon[]
+    total?: string
+  }
+
   type PageResultCouponVO = {
     list?: CouponVO[]
     total?: string
@@ -752,6 +847,16 @@ declare namespace API {
 
   type PageResultPresaleOrderVO = {
     list?: PresaleOrderVO[]
+    total?: string
+  }
+
+  type PageResultPriceBatch = {
+    list?: PriceBatch[]
+    total?: string
+  }
+
+  type PageResultPriceChangeLog = {
+    list?: PriceChangeLog[]
     total?: string
   }
 
@@ -863,6 +968,9 @@ declare namespace API {
     expectShipDate?: string
     depositRatio?: number
     totalStock?: number
+    skuId?: string
+    batchCode?: string
+    depositForfeit?: number
     depositDeadline?: string
     balanceDeadline?: string
   }
@@ -881,6 +989,12 @@ declare namespace API {
     depositDeadline?: string
     balanceDeadline?: string
     status?: number
+  }
+
+  type PresaleFinishRequest = {
+    id?: string
+    score?: number
+    content?: string
   }
 
   type PresaleOrderAddRequest = {
@@ -902,10 +1016,20 @@ declare namespace API {
     depositPaidTime?: string
     balancePaidTime?: string
     addressId?: string
+    logisticsNo?: string
     depositForfeit?: number
     closeRemark?: string
     createTime?: string
     flowList?: PaymentFlowVO[]
+  }
+
+  type PresaleOrderQueryRequest = {
+    current?: number
+    pageSize?: number
+    sortField?: string
+    sortOrder?: string
+    orderNo?: string
+    presaleStatus?: string
   }
 
   type PresaleOrderVO = {
@@ -921,6 +1045,7 @@ declare namespace API {
     depositPaidTime?: string
     balancePaidTime?: string
     addressId?: string
+    logisticsNo?: string
     depositForfeit?: number
     closeRemark?: string
     createTime?: string
@@ -929,6 +1054,46 @@ declare namespace API {
   type PresalePayRequest = {
     id?: string
     payChannel?: string
+  }
+
+  type PresaleShipRequest = {
+    id?: string
+    logisticsNo?: string
+  }
+
+  type PriceBatch = {
+    id?: string
+    batchName?: string
+    priceMode?: string
+    priceValue?: number
+    batchStatus?: string
+    operatorId?: string
+    appliedTime?: string
+    rollbackTime?: string
+    createTime?: string
+    updateTime?: string
+    isDelete?: number
+  }
+
+  type PriceBatchAddRequest = {
+    batchName?: string
+    priceMode?: string
+    priceValue?: number
+    skuIds?: string[]
+  }
+
+  type PriceChangeLog = {
+    id?: string
+    batchId?: string
+    skuId?: string
+    beforePrice?: number
+    afterPrice?: number
+    changeType?: string
+    operatorId?: string
+    remark?: string
+    createTime?: string
+    updateTime?: string
+    isDelete?: number
   }
 
   type Product = {
@@ -1060,6 +1225,31 @@ declare namespace API {
     stock?: number
     groupSize?: number
     minQuantity?: number
+    skuId?: string
+    startTime?: string
+    endTime?: string
+    limitPerUser?: number
+    soldCount?: number
+    activityStatus?: string
+    groupHours?: number
+  }
+
+  type PromotionSaveRequest = {
+    id?: string
+    activityName?: string
+    activityType?: string
+    skuId?: string
+    productId?: string
+    productName?: string
+    salePrice?: number
+    originPrice?: number
+    stock?: number
+    startTime?: string
+    endTime?: string
+    limitPerUser?: number
+    minQuantity?: number
+    groupSize?: number
+    groupHours?: number
   }
 
   type RefundAuditRequest = {
@@ -1241,6 +1431,9 @@ declare namespace API {
     discountAmount?: number
     minAmount?: number
     useStatus?: number
+    userId?: string
+    grantType?: string
+    usedOrderId?: string
   }
 
   type UserLoginRequest = {

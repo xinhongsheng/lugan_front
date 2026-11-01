@@ -135,7 +135,7 @@ onMounted(load)
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'action'">
             <a-button type="link" size="small" @click="openEdit(record)">编辑</a-button>
-            <a-popconfirm title="确认删除？订单没有保存模板编号，删除后只是不再使用。" @confirm="remove(record.id)">
+            <a-popconfirm title="至少保留一条运费规则。确认删除这一条？" @confirm="remove(record.id)">
               <a-button type="link" danger size="small">删除</a-button>
             </a-popconfirm>
           </template>

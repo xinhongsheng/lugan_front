@@ -15,6 +15,10 @@ import AdminOrderListPage from '@/pages/AdminOrderListPage.vue'
 import AdminRefundAuditPage from '@/pages/AdminRefundAuditPage.vue'
 import AdminFreightListPage from '@/pages/AdminFreightListPage.vue'
 import AdminPresaleActivityPage from '@/pages/AdminPresaleActivityPage.vue'
+import AdminMarketingPage from '@/pages/AdminMarketingPage.vue'
+import AdminPresaleOrderPage from '@/pages/AdminPresaleOrderPage.vue'
+import AdminPaymentFlowPage from '@/pages/AdminPaymentFlowPage.vue'
+import PresalePage from '@/pages/PresalePage.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -102,6 +106,30 @@ const router = createRouter({
       name: '预售配置',
       meta: { title: '预售配置', hideInMenu: true },
       component: AdminPresaleActivityPage,
+    },
+    {
+      path: '/admin/marketing',
+      name: '营销管理',
+      meta: { title: '营销管理', hideInMenu: true },
+      component: AdminMarketingPage,
+    },
+    {
+      path: '/admin/presale-order',
+      name: '预售订单',
+      meta: { title: '预售订单', hideInMenu: true },
+      component: AdminPresaleOrderPage,
+    },
+    {
+      path: '/admin/payment',
+      name: '支付流水',
+      meta: { title: '支付流水', hideInMenu: true },
+      component: AdminPaymentFlowPage,
+    },
+    {
+      path: '/presale',
+      name: '采摘季预售',
+      meta: { title: '采摘季预售' },
+      component: PresalePage,
     },
     {
       path: '/promotion',
