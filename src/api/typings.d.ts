@@ -274,6 +274,7 @@ declare namespace API {
     hotList?: ProductVO[]
     newList?: ProductVO[]
     directList?: ProductVO[]
+    shelfList?: ProductVO[]
     noticeList?: ArticleVO[]
     newsList?: ArticleVO[]
     originList?: ArticleVO[]

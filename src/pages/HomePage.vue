@@ -1,5 +1,5 @@
 ﻿<script setup lang="ts">
-import { computed, nextTick, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { getHomeVo } from '@/api/homeController'
@@ -95,7 +95,80 @@ const query = reactive<API.ProductQueryRequest>({
   keyword: '',
 })
 
-const heroImage = computed(() => fileUrl(home.value.bannerList?.[0]?.imageUrl) || HOME_ART.hero)
+const BANNER_INTERVAL_MS = 4000
+
+type BannerSlide = {
+  id: string
+  title: string
+  image: string
+  link: string
+}
+
+const bannerIndex = ref(0)
+let bannerTimer = 0
+
+const banners = computed<BannerSlide[]>(() => {
+  const slides = (home.value.bannerList ?? [])
+    .map((item) => ({
+      id: item.id || item.imageUrl || item.title || '',
+      title: item.title || '',
+      image: fileUrl(item.imageUrl),
+      link: (item.linkUrl || '').trim(),
+    }))
+    .filter((item) => item.image)
+  if (slides.length === 0) {
+    return [{ id: 'fallback', title: '永春芦柑', image: HOME_ART.hero, link: '' }]
+  }
+  return slides
+})
+
+function showBanner(index: number) {
+  const count = banners.value.length
+  if (count === 0) {
+    return
+  }
+  bannerIndex.value = (index + count) % count
+}
+
+function stopBanner() {
+  if (bannerTimer) {
+    window.clearInterval(bannerTimer)
+    bannerTimer = 0
+  }
+}
+
+function startBanner() {
+  stopBanner()
+  if (banners.value.length < 2) {
+    return
+  }
+  bannerTimer = window.setInterval(() => {
+    showBanner(bannerIndex.value + 1)
+  }, BANNER_INTERVAL_MS)
+}
+
+function goBanner(index: number) {
+  showBanner(index)
+  startBanner()
+}
+
+function canOpenBanner(link: string) {
+  if (!link || link === '/' || link === '#') {
+    return false
+  }
+  return link.startsWith('/') || link.startsWith('http://') || link.startsWith('https://')
+}
+
+function openBanner(link: string) {
+  if (!canOpenBanner(link)) {
+    return
+  }
+  if (link.startsWith('http://') || link.startsWith('https://')) {
+    window.open(link, '_blank', 'noopener,noreferrer')
+    return
+  }
+  router.push(link)
+}
 
 function money(product: API.ProductVO) {
   if (product.price === undefined || product.price === null) {
@@ -104,27 +177,34 @@ function money(product: API.ProductVO) {
   return Number(product.price).toFixed(2)
 }
 
-function mergeShelf(designed: Shelf[], live: API.ProductVO[]) {
-  return designed.map((item, index) => {
-    const real = live[index]
-    if (!real) {
-      return item
-    }
-    return {
-      ...item,
-      id: real.id,
-      name: real.name || item.name,
-      spec: [real.spec, real.origin].filter(Boolean).join(' · ') || item.spec,
-      price: money(real) || item.price,
-      cover: fileUrl(real.coverUrl) || item.cover,
-      sold: item.sold,
-    }
-  })
+function toShelf(product: API.ProductVO): Shelf {
+  return {
+    id: product.id,
+    name: product.name || '永春芦柑',
+    spec: [product.spec, product.origin].filter(Boolean).join(' · '),
+    price: money(product) || '待定',
+    sold: '',
+    cover: fileUrl(product.coverUrl) || HOME_ART.bigFruit,
+    keyword: product.name || '芦柑',
+  }
 }
 
-const hotCards = computed(() => mergeShelf(HOT_SHELF, home.value.hotList ?? []))
-const newCards = computed(() => mergeShelf(NEW_SHELF, home.value.newList ?? []))
-const pickCards = computed(() => mergeShelf(PICKS, home.value.directList ?? []))
+function zoneCards(designed: Shelf[], live: API.ProductVO[]) {
+  if (live.length === 0) {
+    return designed
+  }
+  return live.map(toShelf)
+}
+
+const saleCards = computed(() => (home.value.shelfList ?? []).map(toShelf))
+const hotCards = computed(() => {
+  if (saleCards.value.length > 0) {
+    return saleCards.value
+  }
+  return zoneCards(HOT_SHELF, home.value.hotList ?? [])
+})
+const newCards = computed(() => zoneCards(NEW_SHELF, home.value.newList ?? []))
+const pickCards = computed(() => zoneCards(PICKS, home.value.directList ?? []))
 
 const noticeRows = computed(() => {
   const list = home.value.noticeList ?? []
@@ -284,10 +364,19 @@ function resultShelf(product: API.ProductVO, index: number): Shelf {
   }
 }
 
+watch(banners, (list) => {
+  if (bannerIndex.value >= list.length) {
+    bannerIndex.value = 0
+  }
+  startBanner()
+}, { immediate: true })
+
 onMounted(() => {
   loadHome()
   loadSession()
 })
+
+onBeforeUnmount(stopBanner)
 </script>
 
 <template>
@@ -355,17 +444,37 @@ onMounted(() => {
             <span class="dot" />{{ item.name }}
           </button>
         </aside>
-        <div class="banner" :style="{ backgroundImage: `url(${heroImage})` }">
-          <div class="banner-copy">
-            <h1>泉州永春芦柑<br />产地直供 · 丰收季</h1>
-            <p class="banner-chip">丰收助农 · 新鲜上市</p>
-            <ul class="traits">
-              <li>永春原产</li>
-              <li>汁多香浓</li>
-              <li>皮薄易剥</li>
-              <li>果香化渣</li>
-            </ul>
+        <div
+          class="banner"
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="首页轮播"
+          @mouseenter="stopBanner"
+          @mouseleave="startBanner"
+        >
+          <div
+            v-for="(item, index) in banners"
+            :key="`${item.id}-${index}`"
+            class="banner-slide"
+            :class="{ active: index === bannerIndex, link: canOpenBanner(item.link) }"
+            @click="openBanner(item.link)"
+          >
+            <img :src="item.image" :alt="item.title || '首页轮播'" />
           </div>
+          <template v-if="banners.length > 1">
+            <button type="button" class="banner-arrow prev" aria-label="上一张" @click="goBanner(bannerIndex - 1)">‹</button>
+            <button type="button" class="banner-arrow next" aria-label="下一张" @click="goBanner(bannerIndex + 1)">›</button>
+            <div class="banner-dots">
+              <button
+                v-for="(item, index) in banners"
+                :key="`dot-${item.id}-${index}`"
+                type="button"
+                :class="{ on: index === bannerIndex }"
+                :aria-label="`第 ${index + 1} 张`"
+                @click="goBanner(index)"
+              />
+            </div>
+          </template>
           <button type="button" class="core-tag" @click="quickSearch('达埔')">核心产区</button>
         </div>
       </section>
@@ -424,13 +533,13 @@ onMounted(() => {
 
       <section id="hot" class="block">
         <header class="block-head">
-          <h2>热门芦柑推荐</h2>
+          <h2>{{ saleCards.length > 0 ? '在售商品' : '热门芦柑推荐' }}</h2>
           <em class="flag">人气热卖</em>
           <p>永春核心产区直供，当季新鲜，香甜多汁</p>
           <button type="button" class="more" @click="quickSearch('精品果')">查看更多</button>
         </header>
         <div class="goods goods-4">
-          <article v-for="item in hotCards" :key="item.name" class="card">
+          <article v-for="item in hotCards" :key="item.id || item.name" class="card">
             <button type="button" class="hit" @click="openShelf(item)">
               <span class="thumb" :style="item.cover ? { backgroundImage: `url(${item.cover})` } : undefined">
                 <i v-if="item.badge" class="badge">{{ item.badge }}</i>
@@ -454,7 +563,7 @@ onMounted(() => {
           <button type="button" class="more" @click="quickSearch('新品')">查看更多</button>
         </header>
         <div class="goods goods-6">
-          <article v-for="item in newCards" :key="item.name" class="card compact">
+          <article v-for="item in newCards" :key="item.id || item.name" class="card compact">
             <button type="button" class="hit" @click="openShelf(item)">
               <span class="thumb" :style="item.cover ? { backgroundImage: `url(${item.cover})` } : undefined" />
               <h3>{{ item.name }}</h3>
@@ -886,51 +995,94 @@ onMounted(() => {
 .banner {
   position: relative;
   overflow: hidden;
-  min-height: 340px;
+  height: 340px;
   border-radius: 8px;
-  background: #fff6e4 center / cover no-repeat;
+  background: #fff6e4;
 }
 
-.banner-copy {
-  position: relative;
+.banner-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+}
+
+.banner-slide.active {
   z-index: 1;
-  max-width: 460px;
-  padding: 42px 36px;
+  opacity: 1;
+  pointer-events: auto;
 }
 
-.banner-copy h1 {
-  margin: 0 0 14px;
-  color: #e25b00;
-  font-size: 40px;
-  line-height: 1.2;
+.banner-slide.link {
+  cursor: pointer;
 }
 
-.banner-chip {
-  display: inline-block;
-  margin: 0 0 18px;
-  padding: 4px 14px;
-  border-radius: 14px;
-  background: #fff;
+.banner-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.banner-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  margin-top: -16px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
   color: var(--mall-deep);
-  font-size: 13px;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
 }
 
-.traits {
-  display: grid;
-  grid-template-columns: 120px 120px;
-  gap: 10px 18px;
-  margin: 0;
+.banner-arrow.prev {
+  left: 12px;
+}
+
+.banner-arrow.next {
+  right: 12px;
+}
+
+.banner-dots {
+  position: absolute;
+  left: 0;
+  right: 88px;
+  bottom: 12px;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.banner-dots button {
+  width: 8px;
+  height: 8px;
   padding: 0;
-  list-style: none;
-  color: #c2410c;
-  font-size: 15px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+}
+
+.banner-dots button.on {
+  width: 18px;
+  border-radius: 4px;
+  background: var(--mall);
 }
 
 .core-tag {
   position: absolute;
   right: 28px;
   bottom: 36px;
-  z-index: 1;
+  z-index: 3;
   border: 0;
   border-radius: 4px;
   padding: 8px 10px;

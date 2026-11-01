@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { clearMenuItem, getMenuData } from '@ant-design-vue/pro-layout'
 import { getLoginUser } from '@/api/userController'
@@ -42,6 +42,18 @@ function avatarText(user: API.UserVO) {
   return (user.userName || user.userAccount || '芦').slice(0, 1)
 }
 
+const layoutConf = reactive({
+  title: '永春芦柑营销',
+  logo: LOGO,
+  layout: 'top' as const,
+  navTheme: 'light' as const,
+  headerTheme: 'light' as const,
+  contentWidth: (route.path.startsWith('/admin') ? 'Fixed' : 'Fluid') as 'Fluid' | 'Fixed',
+  fixedHeader: true,
+  fixSiderbar: false,
+  menuData,
+})
+
 async function loadLoginUser() {
   try {
     const response = await getLoginUser({ skipAuthRedirect: true })
@@ -57,23 +69,11 @@ watch(
   () => route.path,
   (path) => {
     selectedKeys.value = [path]
+    layoutConf.contentWidth = path.startsWith('/admin') ? 'Fixed' : 'Fluid'
     loadLoginUser()
   },
+  { immediate: true },
 )
-
-onMounted(loadLoginUser)
-
-const layoutConf = reactive({
-  title: '永春芦柑营销',
-  logo: LOGO,
-  layout: 'top' as const,
-  navTheme: 'light' as const,
-  headerTheme: 'light' as const,
-  contentWidth: 'Fluid' as const,
-  fixedHeader: true,
-  fixSiderbar: false,
-  menuData,
-})
 </script>
 
 <template>
@@ -216,6 +216,18 @@ const layoutConf = reactive({
 .site-shell.is-flush .ant-layout-content {
   padding: 0 !important;
   margin: 0 !important;
-  background: #f6f6f6 !important;
+  background: #f5f5f5 !important;
+}
+
+.site-shell.is-flush .ant-pro-page-container-wrap .ant-page-header-heading,
+.site-shell.is-flush .ant-pro-page-container-wrap .ant-page-header-footer {
+  box-sizing: border-box;
+  max-width: 1200px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.site-shell.is-flush .ant-pro-page-container-children-content {
+  padding-top: 16px;
 }
 </style>

@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import type { TableColumnType } from 'ant-design-vue'
 import { adminPage, adminPost } from '@/api/adminController'
 import { getLoginUser } from '@/api/userController'
 import request from '@/request'
 import { fileUrl } from '@/utils/fileUrl'
+import { rawUploadFile } from '@/utils/rawUploadFile'
 
 type Row = Record<string, unknown>
 
+const router = useRouter()
 const role = ref('')
+const loginUserId = ref('')
 const tab = ref('user')
 const rows = ref<Row[]>([])
 const loading = ref(false)
@@ -19,7 +23,15 @@ const editOpen = ref(false)
 const saving = ref(false)
 const isAdmin = computed(() => role.value === 'admin')
 
-const userForm = reactive({ id: '', userStatus: 0, userRole: 'user' })
+const userForm = reactive({
+  id: '',
+  userAccount: '',
+  userName: '',
+  userAvatar: '',
+  userPhone: '',
+  userStatus: 0,
+  userRole: 'user',
+})
 const merchantForm = reactive({
   id: '',
   shopName: '',
@@ -76,13 +88,13 @@ const tabs = computed(() => {
 })
 
 const columns = computed<TableColumnType[]>(() => {
-  const action = { title: '操作', key: 'action', width: 160, fixed: 'right' as const }
+  const action = { title: '操作', key: 'action', width: 120, align: 'right' as const }
   if (tab.value === 'user') {
     return [
-      { title: '头像', dataIndex: 'userAvatar', key: 'userAvatar', width: 72 },
-      { title: '昵称', dataIndex: 'userName', key: 'userName' },
-      { title: '账号', dataIndex: 'userAccount', key: 'userAccount' },
-      { title: '手机号', dataIndex: 'userPhone', key: 'userPhone' },
+      { title: '头像', dataIndex: 'userAvatar', key: 'userAvatar', width: 64 },
+      { title: '昵称', dataIndex: 'userName', key: 'userName', width: 120, ellipsis: true },
+      { title: '账号', dataIndex: 'userAccount', key: 'userAccount', width: 120, ellipsis: true },
+      { title: '手机号', dataIndex: 'userPhone', key: 'userPhone', width: 130 },
       { title: '角色', dataIndex: 'userRole', key: 'userRole', width: 110 },
       { title: '状态', dataIndex: 'userStatus', key: 'userStatus', width: 90 },
       { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 180 },
@@ -91,11 +103,11 @@ const columns = computed<TableColumnType[]>(() => {
   }
   if (tab.value === 'merchant') {
     return [
-      { title: '店铺', dataIndex: 'shopName', key: 'shopName' },
-      { title: '申请人', dataIndex: 'userName', key: 'userName' },
-      { title: '账号', dataIndex: 'userAccount', key: 'userAccount' },
-      { title: '手机号', dataIndex: 'userPhone', key: 'userPhone' },
-      { title: '执照号', dataIndex: 'licenseNo', key: 'licenseNo' },
+      { title: '店铺', dataIndex: 'shopName', key: 'shopName', width: 140, ellipsis: true },
+      { title: '申请人', dataIndex: 'userName', key: 'userName', width: 100, ellipsis: true },
+      { title: '账号', dataIndex: 'userAccount', key: 'userAccount', width: 120, ellipsis: true },
+      { title: '手机号', dataIndex: 'userPhone', key: 'userPhone', width: 130 },
+      { title: '执照号', dataIndex: 'licenseNo', key: 'licenseNo', width: 140, ellipsis: true },
       { title: '产地证明', dataIndex: 'originProof', key: 'originProof', ellipsis: true },
       { title: '审核', dataIndex: 'auditStatus', key: 'auditStatus', width: 100 },
       { title: '店铺', dataIndex: 'shopStatus', key: 'shopStatus', width: 80 },
@@ -105,9 +117,9 @@ const columns = computed<TableColumnType[]>(() => {
   }
   if (tab.value === 'banner') {
     return [
-      { title: '图片', dataIndex: 'imageUrl', key: 'imageUrl', width: 96 },
-      { title: '标题', dataIndex: 'title', key: 'title' },
-      { title: '链接', dataIndex: 'linkUrl', key: 'linkUrl', ellipsis: true },
+      { title: '图片', dataIndex: 'imageUrl', key: 'imageUrl', width: 88 },
+      { title: '标题', dataIndex: 'title', key: 'title', width: 180, ellipsis: true },
+      { title: '链接', dataIndex: 'linkUrl', key: 'linkUrl', width: 160, ellipsis: true },
       { title: '排序', dataIndex: 'sort', key: 'sort', width: 70 },
       { title: '发布', dataIndex: 'publishStatus', key: 'publishStatus', width: 90 },
       { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 180 },
@@ -116,7 +128,7 @@ const columns = computed<TableColumnType[]>(() => {
   }
   if (tab.value === 'article') {
     return [
-      { title: '标题', dataIndex: 'title', key: 'title' },
+      { title: '标题', dataIndex: 'title', key: 'title', width: 200, ellipsis: true },
       { title: '类型', dataIndex: 'articleType', key: 'articleType', width: 110 },
       { title: '摘要', dataIndex: 'summary', key: 'summary', ellipsis: true },
       { title: '发布', dataIndex: 'publishStatus', key: 'publishStatus', width: 90 },
@@ -127,9 +139,9 @@ const columns = computed<TableColumnType[]>(() => {
   }
   if (tab.value === 'dict') {
     return [
-      { title: '字典编码', dataIndex: 'dictCode', key: 'dictCode' },
-      { title: '名称', dataIndex: 'itemName', key: 'itemName' },
-      { title: '值', dataIndex: 'itemValue', key: 'itemValue' },
+      { title: '字典编码', dataIndex: 'dictCode', key: 'dictCode', width: 140, ellipsis: true },
+      { title: '名称', dataIndex: 'itemName', key: 'itemName', width: 140, ellipsis: true },
+      { title: '值', dataIndex: 'itemValue', key: 'itemValue', width: 160, ellipsis: true },
       { title: '排序', dataIndex: 'sort', key: 'sort', width: 70 },
       { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 180 },
       action,
@@ -137,8 +149,8 @@ const columns = computed<TableColumnType[]>(() => {
   }
   if (tab.value === 'file') {
     return [
-      { title: '预览', dataIndex: 'fileUrl', key: 'fileUrl', width: 96 },
-      { title: '文件名', dataIndex: 'fileName', key: 'fileName' },
+      { title: '预览', dataIndex: 'fileUrl', key: 'fileUrl', width: 88 },
+      { title: '文件名', dataIndex: 'fileName', key: 'fileName', width: 180, ellipsis: true },
       { title: '路径', dataIndex: 'fileUrlText', key: 'fileUrlText', ellipsis: true },
       { title: '上传时间', dataIndex: 'createTime', key: 'createTime', width: 180 },
       action,
@@ -214,6 +226,19 @@ function search() {
   load()
 }
 
+function resetQuery() {
+  query.keyword = ''
+  query.userRole = ''
+  query.userStatus = ''
+  query.auditStatus = ''
+  query.shopStatus = ''
+  query.articleType = ''
+  query.publishStatus = ''
+  query.dictCode = ''
+  query.successFlag = ''
+  search()
+}
+
 function changeTab(key: string) {
   tab.value = key
   current.value = 1
@@ -253,6 +278,10 @@ function openEdit(row: Row) {
   if (tab.value === 'user') {
     Object.assign(userForm, {
       id: text(row, 'id'),
+      userAccount: text(row, 'userAccount'),
+      userName: text(row, 'userName'),
+      userAvatar: text(row, 'userAvatar'),
+      userPhone: text(row, 'userPhone'),
       userStatus: Number(text(row, 'userStatus') || 0),
       userRole: text(row, 'userRole') || 'user',
     })
@@ -262,9 +291,9 @@ function openEdit(row: Row) {
       shopName: text(row, 'shopName'),
       licenseNo: text(row, 'licenseNo'),
       originProof: text(row, 'originProof'),
-      auditStatus: text(row, 'auditStatus') || 'pending',
+      auditStatus: text(row, 'auditStatus') === 'rejected' ? 'rejected' : 'passed',
       auditNote: text(row, 'auditNote'),
-      shopStatus: Number(text(row, 'shopStatus') || 0),
+      shopStatus: text(row, 'auditStatus') === 'pending' ? 1 : Number(text(row, 'shopStatus') || 0),
     })
   } else if (tab.value === 'banner') {
     Object.assign(bannerForm, {
@@ -303,15 +332,41 @@ async function saveEdit() {
   try {
     let ok = false
     if (tab.value === 'user') {
-      const statusOk = await run('/user/admin/status', userForm, '状态已更新')
-      ok = statusOk && (await run('/user/admin/role', userForm, '角色已更新'))
+      ok = await run(
+        '/user/admin/update',
+        {
+          id: userForm.id,
+          userName: userForm.userName,
+          userAvatar: userForm.userAvatar,
+          userPhone: userForm.userPhone,
+        },
+        '资料已更新',
+      )
+      if (ok && userForm.id !== loginUserId.value) {
+        const statusOk = await run('/user/admin/status', userForm, '状态已更新')
+        ok = statusOk && (await run('/user/admin/role', userForm, '角色已更新'))
+      }
     } else if (tab.value === 'merchant' && merchantForm.id) {
-      const audit = await adminPost('/merchant/audit', merchantForm)
-      if (audit.data.code !== 0 && !String(audit.data.message || '').includes('不是待审')) {
+      if (merchantForm.auditStatus !== 'passed' && merchantForm.auditStatus !== 'rejected') {
+        message.warning('请选择通过或驳回')
+        return
+      }
+      const audit = await adminPost('/merchant/audit', {
+        id: merchantForm.id,
+        auditStatus: merchantForm.auditStatus,
+        auditNote: merchantForm.auditNote,
+      })
+      const notPending = String(audit.data.message || '').includes('不是待审')
+      if (audit.data.code !== 0 && !notPending) {
         message.error(audit.data.message || '审核失败')
-        ok = false
+        return
+      }
+      if (merchantForm.auditStatus === 'rejected' && !notPending) {
+        message.success('已驳回并关停')
+        await load()
+        ok = true
       } else {
-        ok = await run('/merchant/shop/status', merchantForm, '商家信息已更新')
+        ok = await run('/merchant/shop/status', { id: merchantForm.id, shopStatus: merchantForm.shopStatus }, '商家信息已更新')
       }
     } else if (tab.value === 'merchant') {
       ok = await run('/merchant/add', merchantForm, '入驻已提交')
@@ -349,8 +404,8 @@ async function removeRow(row: Row) {
   await run(url[tab.value], { id }, '已删除')
 }
 
-async function onFile(info: { file?: { originFileObj?: File } }) {
-  const file = info.file?.originFileObj
+async function onFile(info: { file?: File & { originFileObj?: File } }) {
+  const file = rawUploadFile(info)
   if (!file) {
     return
   }
@@ -379,16 +434,20 @@ async function uploadImage(file: File, folder: string) {
   return response.data.data || ''
 }
 
-function onBannerFile(info: { file?: { originFileObj?: File } }) {
+function onUserAvatar(info: { file?: File & { originFileObj?: File } }) {
+  return onBizFile(info, 'avatar')
+}
+
+function onBannerFile(info: { file?: File & { originFileObj?: File } }) {
   return onBizFile(info, 'banner')
 }
 
-function onArticleFile(info: { file?: { originFileObj?: File } }) {
+function onArticleFile(info: { file?: File & { originFileObj?: File } }) {
   return onBizFile(info, 'article')
 }
 
-async function onBizFile(info: { file?: { originFileObj?: File } }, folder: 'banner' | 'article') {
-  const file = info.file?.originFileObj
+async function onBizFile(info: { file?: File & { originFileObj?: File } }, folder: 'avatar' | 'banner' | 'article') {
+  const file = rawUploadFile(info)
   if (!file) {
     return
   }
@@ -396,7 +455,9 @@ async function onBizFile(info: { file?: { originFileObj?: File } }, folder: 'ban
   if (!url) {
     return
   }
-  if (folder === 'banner') {
+  if (folder === 'avatar') {
+    userForm.userAvatar = url
+  } else if (folder === 'banner') {
     bannerForm.imageUrl = url
   } else {
     articleForm.coverUrl = url
@@ -407,6 +468,7 @@ async function onBizFile(info: { file?: { originFileObj?: File } }, folder: 'ban
 onMounted(async () => {
   const response = await getLoginUser()
   role.value = response.data.data?.userRole || ''
+  loginUserId.value = response.data.data?.id || ''
   if (role.value !== 'admin') {
     tab.value = 'banner'
   }
@@ -422,9 +484,11 @@ onMounted(async () => {
     @tab-change="changeTab"
   >
     <template #extra>
-      <router-link to="/admin/catalog">商品类目</router-link>
-      <router-link to="/">返回商城</router-link>
-      <a-tag color="orange">{{ isAdmin ? '管理员' : '运营人员' }}</a-tag>
+      <a-space :size="4">
+        <a-button type="link" @click="router.push('/admin/catalog')">商品类目</a-button>
+        <a-button type="link" @click="router.push('/')">返回商城</a-button>
+        <a-tag color="orange">{{ isAdmin ? '管理员' : '运营人员' }}</a-tag>
+      </a-space>
     </template>
 
     <a-card :bordered="false" class="block">
@@ -482,6 +546,7 @@ onMounted(async () => {
         </a-form-item>
         <a-form-item>
           <a-button type="primary" html-type="submit">查询</a-button>
+          <a-button class="reset" @click="resetQuery">重置</a-button>
         </a-form-item>
       </a-form>
     </a-card>
@@ -498,7 +563,8 @@ onMounted(async () => {
         :data-source="rows"
         :loading="loading"
         row-key="id"
-        :scroll="{ x: 960 }"
+        size="middle"
+        table-layout="fixed"
         :pagination="{ current, pageSize: 20, total, showTotal: (count: number) => `共 ${count} 条` }"
         @change="onTableChange"
       >
@@ -536,14 +602,14 @@ onMounted(async () => {
           </template>
           <template v-else-if="column.key === 'userPhone'">{{ text(record, 'userPhone') || '—' }}</template>
           <template v-else-if="column.key === 'action'">
-            <a-space>
+            <a-space :size="0" class="row-actions">
               <a-button v-if="canEdit" type="link" size="small" @click="openEdit(record)">编辑</a-button>
               <a-popconfirm
                 v-if="canDelete"
                 :title="tab === 'user' ? '确认禁用该账号？' : tab === 'merchant' ? '确认关停该店铺？' : '确认删除？'"
                 @confirm="removeRow(record)"
               >
-                <a-button type="link" danger size="small">删除</a-button>
+                <a-button type="link" danger size="small">{{ tab === 'user' ? '禁用' : tab === 'merchant' ? '关停' : '删除' }}</a-button>
               </a-popconfirm>
             </a-space>
           </template>
@@ -553,14 +619,33 @@ onMounted(async () => {
 
     <a-modal v-model:open="editOpen" :title="userForm.id || bannerForm.id || articleForm.id || dictForm.id || merchantForm.id ? '编辑' : '新建'" :confirm-loading="saving" @ok="saveEdit">
       <a-form v-if="tab === 'user'" layout="vertical">
+        <a-form-item label="账号">
+          <a-input :value="userForm.userAccount" disabled />
+        </a-form-item>
+        <a-form-item label="头像">
+          <a-upload :show-upload-list="false" :before-upload="() => false" accept="image/*" @change="onUserAvatar">
+            <a-button>上传图片</a-button>
+          </a-upload>
+          <div v-if="userForm.userAvatar" class="preview">
+            <a-avatar :size="72" :src="fileUrl(userForm.userAvatar)">
+              {{ userForm.userName.slice(0, 1) || '芦' }}
+            </a-avatar>
+          </div>
+        </a-form-item>
+        <a-form-item label="昵称">
+          <a-input v-model:value="userForm.userName" :maxlength="64" placeholder="显示名称" />
+        </a-form-item>
+        <a-form-item label="手机号">
+          <a-input v-model:value="userForm.userPhone" :maxlength="11" placeholder="11 位手机号" />
+        </a-form-item>
         <a-form-item label="状态">
-          <a-radio-group v-model:value="userForm.userStatus">
+          <a-radio-group v-model:value="userForm.userStatus" :disabled="userForm.id === loginUserId">
             <a-radio :value="0">正常</a-radio>
             <a-radio :value="1">禁用</a-radio>
           </a-radio-group>
         </a-form-item>
         <a-form-item label="角色">
-          <a-select v-model:value="userForm.userRole">
+          <a-select v-model:value="userForm.userRole" :disabled="userForm.id === loginUserId">
             <a-select-option value="user">普通用户</a-select-option>
             <a-select-option value="operator">运营人员</a-select-option>
             <a-select-option value="admin">管理员</a-select-option>
@@ -593,7 +678,7 @@ onMounted(async () => {
         <a-form-item label="标题"><a-input v-model:value="bannerForm.title" /></a-form-item>
         <a-form-item label="轮播图">
           <a-upload :show-upload-list="false" :before-upload="() => false" accept="image/*" @change="onBannerFile">
-            <a-button>上传到 MinIO</a-button>
+            <a-button>上传图片</a-button>
           </a-upload>
           <div v-if="bannerForm.imageUrl" class="preview">
             <a-image :width="160" :src="fileUrl(bannerForm.imageUrl)" />
@@ -616,7 +701,7 @@ onMounted(async () => {
         </a-form-item>
         <a-form-item label="封面">
           <a-upload :show-upload-list="false" :before-upload="() => false" accept="image/*" @change="onArticleFile">
-            <a-button>上传到 MinIO</a-button>
+            <a-button>上传图片</a-button>
           </a-upload>
           <div v-if="articleForm.coverUrl" class="preview">
             <a-image :width="160" :src="fileUrl(articleForm.coverUrl)" />
@@ -644,6 +729,15 @@ onMounted(async () => {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 12px;
+}
+
+.reset {
+  margin-left: 8px;
+}
+
+.row-actions :deep(.ant-btn-link) {
+  height: 24px;
+  padding: 0 6px;
 }
 
 .preview {

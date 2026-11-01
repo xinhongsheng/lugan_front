@@ -297,11 +297,11 @@ onMounted(async () => {
             <h2>我的资料</h2>
             <div class="profile-row">
               <div>
-                <a-avatar :size="72" shape="circle" :src="avatarSrc(user.userAvatar)">
-                  {{ user.userName?.[0] || '芦' }}
-                </a-avatar>
                 <label class="file">
-                  更换头像
+                  <a-avatar :size="72" shape="circle" :src="avatarSrc(user.userAvatar)">
+                    {{ user.userName?.[0] || '芦' }}
+                  </a-avatar>
+                  <span>更换头像</span>
                   <input type="file" accept="image/*" @change="onAvatar" />
                 </label>
               </div>
@@ -654,8 +654,10 @@ aside button.active {
 }
 
 .file {
-  display: inline-block;
-  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
   color: var(--mall-deep);
   font-size: 13px;
   cursor: pointer;
