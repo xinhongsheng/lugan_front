@@ -14,6 +14,38 @@ export async function addOrder(body: API.OrderAddRequest, options?: { [key: stri
   })
 }
 
+/** 此处后端没有提供注释 GET /order/admin/export */
+export async function exportTradeOrder(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.exportTradeOrderParams,
+  options?: { [key: string]: any }
+) {
+  return request<any>('/order/admin/export', {
+    method: 'GET',
+    params: {
+      ...params,
+      queryRequest: undefined,
+      ...params['queryRequest'],
+    },
+    ...(options || {}),
+  })
+}
+
+/** 此处后端没有提供注释 POST /order/admin/list/page/vo */
+export async function listAllTradeOrderVoByPage(
+  body: API.TradeOrderAdminQueryRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponsePageResultTradeOrderAdminVO>('/order/admin/list/page/vo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
 /** 此处后端没有提供注释 POST /order/cancel */
 export async function cancelOrder(body: API.OrderIdRequest, options?: { [key: string]: any }) {
   return request<API.BaseResponseBoolean>('/order/cancel', {

@@ -24,12 +24,25 @@ export const ORDER_STATUS_OPTIONS = ORDER_STATUS_ENUM.map((value) => ({
 export const REFUND_STATUS_MAP: Record<string, string> = {
   none: '',
   applying: '退款申请中',
+  approved: '已退款',
+  rejected: '已驳回',
 }
+
+export const REFUND_STATUS_OPTIONS = [
+  { label: '申请中', value: 'applying' },
+  { label: '已退款', value: 'approved' },
+  { label: '已驳回', value: 'rejected' },
+]
 
 export const PAY_CHANNEL_MAP: Record<string, string> = {
   alipay: '支付宝',
   wechat: '微信',
 }
+
+export const PAY_CHANNEL_OPTIONS = [
+  { label: '支付宝', value: 'alipay' },
+  { label: '微信', value: 'wechat' },
+]
 
 export const ORDER_STATUS_COLOR_MAP: Record<(typeof ORDER_STATUS_ENUM)[number], string> = {
   unpaid: 'orange',

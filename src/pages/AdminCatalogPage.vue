@@ -471,6 +471,7 @@ onMounted(async () => {
     <template #extra>
       <a-space :size="4">
         <a-button type="link" @click="router.push('/admin')">基础系统</a-button>
+        <a-button type="link" @click="router.push('/admin/order')">订单交易</a-button>
         <a-button type="link" @click="router.push('/')">返回商城</a-button>
       </a-space>
     </template>

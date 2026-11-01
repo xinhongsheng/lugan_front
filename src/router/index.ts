@@ -11,6 +11,10 @@ import UserProfilePage from '@/pages/UserProfilePage.vue'
 import PromotionPage from '@/pages/PromotionPage.vue'
 import AdminPage from '@/pages/AdminPage.vue'
 import AdminCatalogPage from '@/pages/AdminCatalogPage.vue'
+import AdminOrderListPage from '@/pages/AdminOrderListPage.vue'
+import AdminRefundAuditPage from '@/pages/AdminRefundAuditPage.vue'
+import AdminFreightListPage from '@/pages/AdminFreightListPage.vue'
+import AdminPresaleActivityPage from '@/pages/AdminPresaleActivityPage.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -74,6 +78,30 @@ const router = createRouter({
       name: '商品类目',
       meta: { title: '商品类目', hideInMenu: true },
       component: AdminCatalogPage,
+    },
+    {
+      path: '/admin/order',
+      name: '订单管理',
+      meta: { title: '订单管理', hideInMenu: true },
+      component: AdminOrderListPage,
+    },
+    {
+      path: '/admin/refund',
+      name: '退款审核',
+      meta: { title: '退款审核', hideInMenu: true },
+      component: AdminRefundAuditPage,
+    },
+    {
+      path: '/admin/freight',
+      name: '运费模板',
+      meta: { title: '运费模板', hideInMenu: true },
+      component: AdminFreightListPage,
+    },
+    {
+      path: '/admin/presale',
+      name: '预售配置',
+      meta: { title: '预售配置', hideInMenu: true },
+      component: AdminPresaleActivityPage,
     },
     {
       path: '/promotion',
