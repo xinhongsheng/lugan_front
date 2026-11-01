@@ -10,6 +10,7 @@ import {
   updateCart,
 } from '@/api/cartController'
 import { luganFruitSvg } from '@/constants/taste'
+import { fileUrl } from '@/utils/fileUrl'
 
 const router = useRouter()
 const loading = ref(false)
@@ -168,7 +169,7 @@ onMounted(load)
         <a-table-column title="商品" key="product">
           <template #default="{ record }">
             <div class="product">
-              <img :src="record.coverUrl || luganFruitSvg(1)" :alt="record.productName || '永春芦柑'" />
+              <img :src="fileUrl(record.coverUrl) || luganFruitSvg(1)" :alt="record.productName || '永春芦柑'" />
               <div>
                 <strong>{{ record.productName || '永春芦柑' }}</strong>
                 <p>{{ record.skuName }} · {{ record.priceMode === 'jin' ? '按斤' : '按件' }}</p>

@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { luganFruitSvg } from '@/constants/taste'
+import { fileUrl } from '@/utils/fileUrl'
 
 const router = useRouter()
 
@@ -10,7 +11,7 @@ const props = defineProps<{
   index?: number
 }>()
 
-const cover = computed(() => props.product.coverUrl || luganFruitSvg(props.index ?? 0))
+const cover = computed(() => fileUrl(props.product.coverUrl) || luganFruitSvg(props.index ?? 0))
 
 const priceText = computed(() => {
   const price = props.product.price

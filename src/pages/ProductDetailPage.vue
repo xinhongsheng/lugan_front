@@ -10,6 +10,7 @@ import { addOrder } from '@/api/tradeOrderController'
 import { listMyUserCouponVoByPage } from '@/api/userCouponController'
 import { addFavorite } from '@/api/favoriteController'
 import { luganFruitSvg } from '@/constants/taste'
+import { fileUrl } from '@/utils/fileUrl'
 
 const route = useRoute()
 const router = useRouter()
@@ -31,7 +32,7 @@ const provinces = [
 
 const currentSku = computed(() => detail.value.skuList?.find((item) => item.id === skuId.value))
 
-const cover = computed(() => detail.value.coverUrl || luganFruitSvg(1))
+const cover = computed(() => fileUrl(detail.value.coverUrl) || luganFruitSvg(1))
 
 const priceText = computed(() => {
   const price = currentSku.value?.salePrice ?? detail.value.price
@@ -71,6 +72,7 @@ function buyerPhotos(imageUrls?: string) {
     .split(',')
     .map((item) => item.trim())
     .filter((item) => item.length > 0)
+    .map((item) => fileUrl(item))
 }
 
 async function loadDetail() {

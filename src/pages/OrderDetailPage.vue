@@ -13,6 +13,7 @@ import {
 import { addReview, uploadReviewImage } from '@/api/reviewController'
 import { ORDER_STATUS_MAP, PAY_CHANNEL_MAP, REFUND_STATUS_MAP } from '@/constants/order'
 import { listMyUserCouponVoByPage } from '@/api/userCouponController'
+import { fileUrl } from '@/utils/fileUrl'
 
 const route = useRoute()
 const loading = ref(false)
@@ -34,10 +35,6 @@ const addressText = computed(() =>
     .filter(Boolean)
     .join(' '),
 )
-
-function apiBase() {
-  return import.meta.env.VITE_API_BASE_URL || ''
-}
 
 async function load() {
   const id = String(route.query.id ?? '')
@@ -241,7 +238,7 @@ watch(() => route.query.id, load)
           <a-textarea v-model:value="reviewContent" :rows="3" placeholder="说说这箱芦柑" />
         </div>
         <div class="photos">
-          <img v-for="photo in reviewImages" :key="photo" :src="`${apiBase()}${photo}`" alt="实拍" />
+          <img v-for="photo in reviewImages" :key="photo" :src="fileUrl(photo)" alt="实拍" />
           <input type="file" accept="image/*" @change="onImage" />
         </div>
         <a-button type="primary" :loading="acting" @click="submitReview">提交评价</a-button>

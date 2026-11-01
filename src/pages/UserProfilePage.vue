@@ -21,6 +21,7 @@ import { listMyUserCouponVoByPage } from '@/api/userCouponController'
 import { listMyMessageVoByPage, readMessage } from '@/api/messageController'
 import { ORDER_STATUS_MAP } from '@/constants/order'
 import { HOME_ART } from '@/constants/homeArt'
+import { fileUrl } from '@/utils/fileUrl'
 
 const router = useRouter()
 const user = ref<API.UserVO>({})
@@ -59,18 +60,8 @@ const MENUS = [
   { key: 'message', label: '消息' },
 ]
 
-function apiBase() {
-  return import.meta.env.VITE_API_BASE_URL || ''
-}
-
 function avatarSrc(path?: string) {
-  if (!path) {
-    return ''
-  }
-  if (path.startsWith('http')) {
-    return path
-  }
-  return `${apiBase()}${path}`
+  return fileUrl(path)
 }
 
 function orderText(status?: string) {

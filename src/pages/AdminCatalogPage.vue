@@ -5,6 +5,8 @@ import type { TableColumnType } from 'ant-design-vue'
 import { adminPage, adminPost } from '@/api/adminController'
 import { AUDIT_STATUS_COLOR_MAP, AUDIT_STATUS_MAP, SHELF_STATUS_COLOR_MAP, SHELF_STATUS_MAP } from '@/constants/product'
 import { SPEC_TYPE_COLOR_MAP, SPEC_TYPE_MAP } from '@/constants/productSpec'
+import request from '@/request'
+import { fileUrl } from '@/utils/fileUrl'
 
 type Row = Record<string, unknown>
 
@@ -24,7 +26,7 @@ const categoryForm = reactive({
   sort: 0,
   publishStatus: 1,
 })
-const auditForm = reactive({ id: '', name: '', auditStatus: 'passed', auditNote: '' })
+const auditForm = reactive({ id: '', name: '', coverUrl: '', auditStatus: 'passed', auditNote: '' })
 const specForm = reactive({
   id: '',
   specType: 'diameter',
@@ -95,14 +97,7 @@ function text(row: Row, key: string) {
 }
 
 function imageUrl(path: unknown) {
-  const value = String(path || '')
-  if (!value) {
-    return ''
-  }
-  if (value.startsWith('http') || value.startsWith('data:')) {
-    return value
-  }
-  return `${import.meta.env.VITE_API_BASE_URL || ''}${value}`
+  return fileUrl(path)
 }
 
 function searchBody() {
@@ -200,6 +195,7 @@ function openEdit(row: Row) {
     Object.assign(auditForm, {
       id: text(row, 'id'),
       name: text(row, 'name'),
+      coverUrl: text(row, 'coverUrl'),
       auditStatus: text(row, 'auditStatus') === 'rejected' ? 'rejected' : 'passed',
       auditNote: text(row, 'auditNote'),
     })
@@ -224,6 +220,9 @@ async function saveEdit() {
       const body = { ...categoryForm, parentId: categoryForm.parentId === '0' ? 0 : categoryForm.parentId }
       ok = await run(categoryForm.id ? '/category/update' : '/category/add', body, '分类已保存')
     } else if (tab.value === 'productAudit') {
+      if (auditForm.coverUrl) {
+        await run('/product/update', { id: auditForm.id, coverUrl: auditForm.coverUrl }, '封面已更新')
+      }
       ok = await run('/product/audit', auditForm, auditForm.auditStatus === 'passed' ? '已通过并上架' : '已驳回并下架')
     } else {
       ok = await run(specForm.id ? '/productSpec/update' : '/productSpec/add', specForm, '规格已保存')
@@ -234,6 +233,29 @@ async function saveEdit() {
   } finally {
     saving.value = false
   }
+}
+
+async function onProductCover(info: { file?: { originFileObj?: File } }) {
+  const file = info.file?.originFileObj
+  if (!file) {
+    return
+  }
+  const form = new FormData()
+  form.append('file', file)
+  const response = await request<{ code?: number; data?: string; message?: string }>(
+    '/system/file/upload?folder=product',
+    {
+      method: 'POST',
+      data: form,
+      headers: { 'Content-Type': 'multipart/form-data' },
+    },
+  )
+  if (response.data.code !== 0) {
+    message.error(response.data.message || '上传失败')
+    return
+  }
+  auditForm.coverUrl = response.data.data || ''
+  message.success('商品图片已上传')
 }
 
 async function removeRow(row: Row) {
@@ -393,6 +415,14 @@ onMounted(async () => {
       </a-form>
       <a-form v-else-if="tab === 'productAudit'" layout="vertical">
         <a-form-item label="商品">{{ auditForm.name }}</a-form-item>
+        <a-form-item label="商品图片">
+          <a-upload :show-upload-list="false" :before-upload="() => false" accept="image/*" @change="onProductCover">
+            <a-button>上传到 MinIO</a-button>
+          </a-upload>
+          <div v-if="auditForm.coverUrl" class="preview">
+            <a-image :width="160" :src="fileUrl(auditForm.coverUrl)" />
+          </div>
+        </a-form-item>
         <a-form-item label="审核结论">
           <a-select v-model:value="auditForm.auditStatus">
             <a-select-option value="passed">通过并上架</a-select-option>
@@ -428,5 +458,9 @@ onMounted(async () => {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 12px;
+}
+
+.preview {
+  margin-top: 8px;
 }
 </style>

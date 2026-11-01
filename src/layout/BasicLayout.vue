@@ -3,6 +3,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { clearMenuItem, getMenuData } from '@ant-design-vue/pro-layout'
 import { getLoginUser } from '@/api/userController'
+import { fileUrl } from '@/utils/fileUrl'
 
 const router = useRouter()
 const route = useRoute()
@@ -34,13 +35,7 @@ const isFlush = computed(
 )
 
 function avatarSrc(path?: string) {
-  if (!path) {
-    return ''
-  }
-  if (path.startsWith('http')) {
-    return path
-  }
-  return `${import.meta.env.VITE_API_BASE_URL || ''}${path}`
+  return fileUrl(path)
 }
 
 function avatarText(user: API.UserVO) {

@@ -7,6 +7,7 @@ import { listProductVoByPage } from '@/api/productController'
 import { listMyCartVoByPage } from '@/api/cartController'
 import { getLoginUser } from '@/api/userController'
 import { HOME_ART } from '@/constants/homeArt'
+import { fileUrl } from '@/utils/fileUrl'
 
 type Shelf = {
   id?: string
@@ -94,7 +95,7 @@ const query = reactive<API.ProductQueryRequest>({
   keyword: '',
 })
 
-const heroImage = computed(() => home.value.bannerList?.[0]?.imageUrl || HOME_ART.hero)
+const heroImage = computed(() => fileUrl(home.value.bannerList?.[0]?.imageUrl) || HOME_ART.hero)
 
 function money(product: API.ProductVO) {
   if (product.price === undefined || product.price === null) {
@@ -115,7 +116,7 @@ function mergeShelf(designed: Shelf[], live: API.ProductVO[]) {
       name: real.name || item.name,
       spec: [real.spec, real.origin].filter(Boolean).join(' · ') || item.spec,
       price: money(real) || item.price,
-      cover: real.coverUrl || item.cover,
+      cover: fileUrl(real.coverUrl) || item.cover,
       sold: item.sold,
     }
   })
@@ -278,7 +279,7 @@ function resultShelf(product: API.ProductVO, index: number): Shelf {
     spec: [product.spec, product.origin].filter(Boolean).join(' · '),
     price: money(product) || '待定',
     sold: '',
-    cover: product.coverUrl || HOME_ART.bigFruit,
+    cover: fileUrl(product.coverUrl) || HOME_ART.bigFruit,
     keyword: product.name || '芦柑',
   }
 }
@@ -401,7 +402,7 @@ onMounted(() => {
           <div v-else class="goods goods-4">
             <article v-for="(product, index) in searchResult" :key="product.id ?? index" class="card">
               <button type="button" class="hit" @click="openShelf(resultShelf(product, index))">
-                <span class="thumb" :style="{ backgroundImage: `url(${product.coverUrl || HOME_ART.bigFruit})` }" />
+                <span class="thumb" :style="{ backgroundImage: `url(${fileUrl(product.coverUrl) || HOME_ART.bigFruit})` }" />
                 <h3>{{ product.name || '永春芦柑' }}</h3>
                 <p>{{ [product.spec, product.origin].filter(Boolean).join(' · ') }}</p>
                 <strong>¥{{ money(product) || '待定' }}</strong>

@@ -5,6 +5,7 @@ import type { TableColumnType } from 'ant-design-vue'
 import { adminPage, adminPost } from '@/api/adminController'
 import { getLoginUser } from '@/api/userController'
 import request from '@/request'
+import { fileUrl } from '@/utils/fileUrl'
 
 type Row = Record<string, unknown>
 
@@ -33,6 +34,7 @@ const articleForm = reactive({
   id: '',
   title: '',
   articleType: 'notice',
+  coverUrl: '',
   summary: '',
   content: '',
   sort: 0,
@@ -159,14 +161,7 @@ function text(row: Row, key: string) {
 }
 
 function avatarUrl(path: unknown) {
-  const value = String(path || '')
-  if (!value) {
-    return ''
-  }
-  if (value.startsWith('http') || value.startsWith('data:')) {
-    return value
-  }
-  return `${import.meta.env.VITE_API_BASE_URL || ''}${value}`
+  return fileUrl(path)
 }
 
 function searchBody() {
@@ -245,7 +240,7 @@ function openCreate() {
   if (tab.value === 'banner') {
     Object.assign(bannerForm, { id: '', title: '', imageUrl: '', linkUrl: '', sort: 0, publishStatus: 1 })
   } else if (tab.value === 'article') {
-    Object.assign(articleForm, { id: '', title: '', articleType: 'notice', summary: '', content: '', sort: 0, publishStatus: 1 })
+    Object.assign(articleForm, { id: '', title: '', articleType: 'notice', coverUrl: '', summary: '', content: '', sort: 0, publishStatus: 1 })
   } else if (tab.value === 'dict') {
     Object.assign(dictForm, { id: '', dictCode: '', itemName: '', itemValue: '', sort: 0 })
   } else if (tab.value === 'merchant') {
@@ -285,6 +280,7 @@ function openEdit(row: Row) {
       id: text(row, 'id'),
       title: text(row, 'title'),
       articleType: text(row, 'articleType') || 'notice',
+      coverUrl: text(row, 'coverUrl'),
       summary: text(row, 'summary'),
       content: text(row, 'content'),
       sort: Number(text(row, 'sort') || 0),
@@ -358,19 +354,54 @@ async function onFile(info: { file?: { originFileObj?: File } }) {
   if (!file) {
     return
   }
+  const url = await uploadImage(file, 'file')
+  if (url) {
+    message.success('已上传')
+    await load()
+  }
+}
+
+async function uploadImage(file: File, folder: string) {
   const form = new FormData()
   form.append('file', file)
-  const response = await request<{ code?: number; data?: string; message?: string }>('/system/file/upload', {
-    method: 'POST',
-    data: form,
-    headers: { 'Content-Type': 'multipart/form-data' },
-  })
+  const response = await request<{ code?: number; data?: string; message?: string }>(
+    `/system/file/upload?folder=${folder}`,
+    {
+      method: 'POST',
+      data: form,
+      headers: { 'Content-Type': 'multipart/form-data' },
+    },
+  )
   if (response.data.code !== 0) {
     message.error(response.data.message || '上传失败')
+    return ''
+  }
+  return response.data.data || ''
+}
+
+function onBannerFile(info: { file?: { originFileObj?: File } }) {
+  return onBizFile(info, 'banner')
+}
+
+function onArticleFile(info: { file?: { originFileObj?: File } }) {
+  return onBizFile(info, 'article')
+}
+
+async function onBizFile(info: { file?: { originFileObj?: File } }, folder: 'banner' | 'article') {
+  const file = info.file?.originFileObj
+  if (!file) {
     return
   }
-  message.success('已上传')
-  await load()
+  const url = await uploadImage(file, folder)
+  if (!url) {
+    return
+  }
+  if (folder === 'banner') {
+    bannerForm.imageUrl = url
+  } else {
+    articleForm.coverUrl = url
+  }
+  message.success('图片已上传')
 }
 
 onMounted(async () => {
@@ -560,7 +591,14 @@ onMounted(async () => {
       </a-form>
       <a-form v-else-if="tab === 'banner'" layout="vertical">
         <a-form-item label="标题"><a-input v-model:value="bannerForm.title" /></a-form-item>
-        <a-form-item label="图片地址"><a-input v-model:value="bannerForm.imageUrl" /></a-form-item>
+        <a-form-item label="轮播图">
+          <a-upload :show-upload-list="false" :before-upload="() => false" accept="image/*" @change="onBannerFile">
+            <a-button>上传到 MinIO</a-button>
+          </a-upload>
+          <div v-if="bannerForm.imageUrl" class="preview">
+            <a-image :width="160" :src="fileUrl(bannerForm.imageUrl)" />
+          </div>
+        </a-form-item>
         <a-form-item label="跳转链接"><a-input v-model:value="bannerForm.linkUrl" /></a-form-item>
         <a-form-item label="排序"><a-input-number v-model:value="bannerForm.sort" :min="0" /></a-form-item>
         <a-form-item label="发布">
@@ -575,6 +613,14 @@ onMounted(async () => {
             <a-select-option value="news">资讯</a-select-option>
             <a-select-option value="origin">产地介绍</a-select-option>
           </a-select>
+        </a-form-item>
+        <a-form-item label="封面">
+          <a-upload :show-upload-list="false" :before-upload="() => false" accept="image/*" @change="onArticleFile">
+            <a-button>上传到 MinIO</a-button>
+          </a-upload>
+          <div v-if="articleForm.coverUrl" class="preview">
+            <a-image :width="160" :src="fileUrl(articleForm.coverUrl)" />
+          </div>
         </a-form-item>
         <a-form-item label="摘要"><a-input v-model:value="articleForm.summary" /></a-form-item>
         <a-form-item label="正文"><a-textarea v-model:value="articleForm.content" :rows="4" /></a-form-item>
@@ -598,5 +644,9 @@ onMounted(async () => {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 12px;
+}
+
+.preview {
+  margin-top: 8px;
 }
 </style>
