@@ -55,3 +55,25 @@ export async function uploadReviewImage(body: {}, options?: { [key: string]: any
     ...(options || {}),
   })
 }
+
+export async function listMerchantReview(body: API.PageRequest, options?: { [key: string]: any }) {
+  return request<API.BaseResponsePageResultReviewVO>('/review/merchant/list/page/vo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
+export async function replyReview(body: API.ReviewReplyRequest, options?: { [key: string]: any }) {
+  return request<API.BaseResponseBoolean>('/review/reply', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}

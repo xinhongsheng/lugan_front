@@ -125,13 +125,37 @@ export async function refundOrder(body: API.OrderRefundRequest, options?: { [key
 }
 
 /** 此处后端没有提供注释 POST /order/ship */
-export async function shipOrder(body: API.OrderIdRequest, options?: { [key: string]: any }) {
+export async function shipOrder(body: API.OrderShipRequest, options?: { [key: string]: any }) {
   return request<API.BaseResponseString>('/order/ship', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     data: body,
+    ...(options || {}),
+  })
+}
+
+/** 商家现货订单 POST /order/merchant/list/page/vo */
+export async function listMerchantOrder(body: API.PageRequest, options?: { [key: string]: any }) {
+  return request<API.BaseResponsePageResultTradeOrderVO>('/order/merchant/list/page/vo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
+/** 发货单 GET /order/ship/sheet */
+export async function getShipSheet(
+  params: { id: string },
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponseTradeOrderDetailVO>('/order/ship/sheet', {
+    method: 'GET',
+    params,
     ...(options || {}),
   })
 }

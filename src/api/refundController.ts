@@ -28,3 +28,30 @@ export async function auditRefund(body: API.RefundAuditRequest, options?: { [key
     ...(options || {}),
   })
 }
+
+/** 商家退款分页 POST /refund/merchant/list/page/vo */
+export async function listMerchantRefund(
+  body: API.RefundOrderQueryRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponsePageResultRefundOrderVO>('/refund/merchant/list/page/vo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
+/** 商家处理退款 POST /refund/handle */
+export async function handleRefund(body: API.RefundAuditRequest, options?: { [key: string]: any }) {
+  return request<API.BaseResponseBoolean>('/refund/handle', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}

@@ -209,33 +209,70 @@ const hotCards = computed(() => {
 const newCards = computed(() => zoneCards(NEW_SHELF, home.value.newList ?? []))
 const pickCards = computed(() => zoneCards(PICKS, home.value.directList ?? []))
 
+function noticeDate(value?: string) {
+  if (!value || value.length < 10) {
+    return ''
+  }
+  return value.slice(5, 10)
+}
+
 const noticeRows = computed(() => {
   const list = home.value.noticeList ?? []
   if (list.length === 0) {
-    return NOTICE_FALLBACK
+    return NOTICE_FALLBACK.map((item) => ({ ...item, id: undefined as string | undefined }))
   }
   return list.slice(0, 4).map((item, index) => ({
+    id: item.id,
     title: item.title || NOTICE_FALLBACK[index]?.title || '平台公告',
-    date: NOTICE_FALLBACK[index]?.date || '',
+    date: noticeDate(item.createTime) || NOTICE_FALLBACK[index]?.date || '',
   }))
 })
 
 const newsRows = computed(() => {
   const list = home.value.newsList ?? []
   if (list.length === 0) {
-    return NEWS_FALLBACK
+    return NEWS_FALLBACK.map((item) => ({
+      ...item,
+      id: undefined as string | undefined,
+      cover: HOME_ART.news,
+    }))
   }
   return list.slice(0, 2).map((item, index) => ({
+    id: item.id,
     title: item.title || NEWS_FALLBACK[index]?.title || '产业资讯',
-    date: NEWS_FALLBACK[index]?.date || '',
+    date: item.createTime?.slice(0, 10) || NEWS_FALLBACK[index]?.date || '',
     summary: item.summary || NEWS_FALLBACK[index]?.summary || '',
+    cover: fileUrl(item.coverUrl) || HOME_ART.news,
   }))
 })
 
-const originLead = computed(() => {
+const originCard = computed(() => {
   const first = home.value.originList?.[0]
-  return first?.summary || first?.title || '走进永春芦柑之乡。中国芦柑之乡，地理标志产品。永春芦柑皮薄易剥，汁多化渣，是福建泉州的招牌鲜果。'
+  if (!first) {
+    return {
+      id: undefined as string | undefined,
+      text: '走进永春芦柑之乡。中国芦柑之乡，地理标志产品。永春芦柑皮薄易剥，汁多化渣，是福建泉州的招牌鲜果。',
+      cover: HOME_ART.origin,
+    }
+  }
+  return {
+    id: first.id,
+    text: first.summary || first.title || '走进永春芦柑之乡。中国芦柑之乡，地理标志产品。永春芦柑皮薄易剥，汁多化渣，是福建泉州的招牌鲜果。',
+    cover: fileUrl(first.coverUrl) || HOME_ART.origin,
+  }
 })
+
+function openArticleList(type: 'notice' | 'news' | 'origin') {
+  router.push({ path: '/article', query: { type } })
+}
+
+function openArticle(item: { id?: string }, type: 'notice' | 'news' | 'origin') {
+  if (!item.id) {
+    openArticleList(type)
+    return
+  }
+  router.push({ path: '/article/detail', query: { id: item.id, type } })
+}
 
 function openShelf(item: Shelf) {
   if (item.id) {
@@ -628,38 +665,46 @@ onBeforeUnmount(stopBanner)
         <article>
           <header>
             <h2>平台公告</h2>
-            <button type="button" class="more">更多</button>
+            <button type="button" class="more" @click="openArticleList('notice')">更多</button>
           </header>
           <ul>
-            <li v-for="item in noticeRows" :key="item.title">
-              <span>{{ item.title }}</span>
-              <time>{{ item.date }}</time>
+            <li v-for="item in noticeRows" :key="item.id || item.title">
+              <button type="button" class="notice-hit" @click="openArticle(item, 'notice')">
+                <span>{{ item.title }}</span>
+                <time>{{ item.date }}</time>
+              </button>
             </li>
           </ul>
         </article>
         <article>
           <header>
             <h2>永春芦柑产业资讯</h2>
-            <button type="button" class="more">更多</button>
+            <button type="button" class="more" @click="openArticleList('news')">更多</button>
           </header>
-          <div v-for="item in newsRows" :key="item.title" class="story">
-            <span class="mini" :style="{ backgroundImage: `url(${HOME_ART.news})` }" />
-            <div>
+          <button
+            v-for="item in newsRows"
+            :key="item.id || item.title"
+            type="button"
+            class="story story-hit"
+            @click="openArticle(item, 'news')"
+          >
+            <span class="mini" :style="{ backgroundImage: `url(${item.cover})` }" />
+            <span class="story-copy">
               <strong>{{ item.title }}</strong>
               <time>{{ item.date }}</time>
-              <p>{{ item.summary }}</p>
-            </div>
-          </div>
+              <em>{{ item.summary }}</em>
+            </span>
+          </button>
         </article>
         <article>
           <header>
             <h2>产地介绍</h2>
-            <button type="button" class="more">更多</button>
+            <button type="button" class="more" @click="openArticleList('origin')">更多</button>
           </header>
-          <div class="story">
-            <span class="mini tall" :style="{ backgroundImage: `url(${HOME_ART.origin})` }" />
-            <p class="origin-copy">{{ originLead }}</p>
-          </div>
+          <button type="button" class="story story-hit" @click="openArticle(originCard, 'origin')">
+            <span class="mini tall" :style="{ backgroundImage: `url(${originCard.cover})` }" />
+            <p class="origin-copy">{{ originCard.text }}</p>
+          </button>
         </article>
       </section>
 
@@ -742,9 +787,9 @@ onBeforeUnmount(stopBanner)
         </div>
         <div>
           <strong>商家入驻</strong>
-          <p>商家入驻流程</p>
-          <p>入驻条件说明</p>
-          <p>商家管理规则</p>
+          <p><router-link to="/merchant/apply">商家入驻流程</router-link></p>
+          <p><router-link to="/merchant/apply">入驻条件说明</router-link></p>
+          <p><router-link to="/merchant/apply">商家管理规则</router-link></p>
         </div>
         <div>
           <strong>关于我们</strong>
@@ -759,7 +804,7 @@ onBeforeUnmount(stopBanner)
           <p>平台地址：福建省泉州市永春县（芦柑产业园区）</p>
         </div>
       </div>
-      <p class="copy">© 2025 泉州永春芦柑营销平台　版权所有　|　闽ICP备00000000号</p>
+      <p class="copy">© 2026 泉州永春芦柑营销平台　版权所有　|　闽ICP备00000000号</p>
     </footer>
   </div>
 </template>
@@ -1413,6 +1458,28 @@ onBeforeUnmount(stopBanner)
   font-size: 13px;
 }
 
+.news-row li {
+  padding: 0;
+}
+
+.notice-hit {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.notice-hit:hover span {
+  color: var(--mall-deep);
+}
+
 .news-row time {
   color: #bbb;
   font-size: 12px;
@@ -1421,6 +1488,35 @@ onBeforeUnmount(stopBanner)
 
 .story {
   align-items: flex-start;
+}
+
+.story-hit {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.story-hit:hover strong,
+.story-hit:hover .origin-copy {
+  color: var(--mall-deep);
+}
+
+.story-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.story-copy em {
+  color: #999;
+  font-style: normal;
+  font-size: 12px;
+  line-height: 1.6;
 }
 
 .story .mini.tall {

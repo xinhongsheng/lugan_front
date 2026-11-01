@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '@/pages/HomePage.vue'
+import ArticleListPage from '@/pages/ArticleListPage.vue'
+import ArticleDetailPage from '@/pages/ArticleDetailPage.vue'
 import ProductDetailPage from '@/pages/ProductDetailPage.vue'
 import CartPage from '@/pages/CartPage.vue'
 import OrderConfirmPage from '@/pages/OrderConfirmPage.vue'
@@ -22,6 +24,15 @@ import AdminPresaleOrderPage from '@/pages/AdminPresaleOrderPage.vue'
 import AdminPresaleTaskLogPage from '@/pages/AdminPresaleTaskLogPage.vue'
 import AdminPaymentFlowPage from '@/pages/AdminPaymentFlowPage.vue'
 import PresalePage from '@/pages/PresalePage.vue'
+import MerchantApplyPage from '@/pages/MerchantApplyPage.vue'
+import MerchantProductPage from '@/pages/MerchantProductPage.vue'
+import MerchantStockPage from '@/pages/MerchantStockPage.vue'
+import MerchantOrderPage from '@/pages/MerchantOrderPage.vue'
+import MerchantRefundPage from '@/pages/MerchantRefundPage.vue'
+import MerchantStatPage from '@/pages/MerchantStatPage.vue'
+import MerchantReviewPage from '@/pages/MerchantReviewPage.vue'
+import MerchantTracePage from '@/pages/MerchantTracePage.vue'
+import MerchantPresalePage from '@/pages/MerchantPresalePage.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -31,6 +42,18 @@ const router = createRouter({
       name: '首页',
       meta: { title: '首页' },
       component: HomePage,
+    },
+    {
+      path: '/article',
+      name: '平台公告',
+      meta: { title: '平台公告', hideInMenu: true },
+      component: ArticleListPage,
+    },
+    {
+      path: '/article/detail',
+      name: '公告详情',
+      meta: { title: '公告详情', hideInMenu: true },
+      component: ArticleDetailPage,
     },
     {
       path: '/product/detail',
@@ -163,6 +186,60 @@ const router = createRouter({
       name: '个人中心',
       meta: { title: '个人中心' },
       component: UserProfilePage,
+    },
+    {
+      path: '/merchant/apply',
+      name: '入驻资料',
+      meta: { title: '入驻资料' },
+      component: MerchantApplyPage,
+    },
+    {
+      path: '/merchant/product',
+      name: '商家商品',
+      meta: { title: '商家商品' },
+      component: MerchantProductPage,
+    },
+    {
+      path: '/merchant/stock',
+      name: '现货库存',
+      meta: { title: '现货库存' },
+      component: MerchantStockPage,
+    },
+    {
+      path: '/merchant/order',
+      name: '商家订单',
+      meta: { title: '商家订单' },
+      component: MerchantOrderPage,
+    },
+    {
+      path: '/merchant/refund',
+      name: '退款处理',
+      meta: { title: '退款处理' },
+      component: MerchantRefundPage,
+    },
+    {
+      path: '/merchant/stat',
+      name: '经营统计',
+      meta: { title: '经营统计' },
+      component: MerchantStatPage,
+    },
+    {
+      path: '/merchant/review',
+      name: '评价回复',
+      meta: { title: '评价回复' },
+      component: MerchantReviewPage,
+    },
+    {
+      path: '/merchant/trace',
+      name: '溯源建档',
+      meta: { title: '溯源建档' },
+      component: MerchantTracePage,
+    },
+    {
+      path: '/merchant/presale',
+      name: '预售供货',
+      meta: { title: '预售供货' },
+      component: MerchantPresalePage,
     },
   ],
 })

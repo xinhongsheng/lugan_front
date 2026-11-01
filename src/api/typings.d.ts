@@ -65,6 +65,25 @@ declare namespace API {
     isDelete?: number
   }
 
+  type ArticleDetailVO = {
+    id?: string
+    title?: string
+    coverUrl?: string
+    summary?: string
+    content?: string
+    articleType?: string
+    createTime?: string
+  }
+
+  type ArticleQueryRequest = {
+    current?: number
+    pageSize?: number
+    sortField?: string
+    sortOrder?: string
+    articleType?: string
+    keyword?: string
+  }
+
   type ArticleVO = {
     id?: string
     title?: string
@@ -72,6 +91,7 @@ declare namespace API {
     summary?: string
     articleType?: string
     sort?: number
+    createTime?: string
   }
 
   type Banner = {
@@ -164,9 +184,23 @@ declare namespace API {
     traceId?: string
   }
 
+  type BaseResponseArticleDetailVO = {
+    code?: number
+    data?: ArticleDetailVO
+    message?: string
+    traceId?: string
+  }
+
   type BaseResponsePageResultArticle = {
     code?: number
     data?: PageResultArticle
+    message?: string
+    traceId?: string
+  }
+
+  type BaseResponsePageResultArticleVO = {
+    code?: number
+    data?: PageResultArticleVO
     message?: string
     traceId?: string
   }
@@ -611,6 +645,10 @@ declare namespace API {
     id: string
   }
 
+  type getArticleVOByIdParams = {
+    id: string
+  }
+
   type getPresaleOrderVOByIdParams = {
     id: string
   }
@@ -685,6 +723,12 @@ declare namespace API {
     shopName?: string
     licenseNo?: string
     originProof?: string
+    farmerName?: string
+    phone?: string
+    originAreaCode?: string
+    address?: string
+    licenseUrl?: string
+    originProofUrl?: string
     auditStatus?: string
     auditNote?: string
     shopStatus?: number
@@ -702,6 +746,12 @@ declare namespace API {
     shopName?: string
     licenseNo?: string
     originProof?: string
+    farmerName?: string
+    phone?: string
+    originAreaCode?: string
+    address?: string
+    licenseUrl?: string
+    originProofUrl?: string
     auditStatus?: string
     auditNote?: string
     shopStatus?: number
@@ -768,6 +818,11 @@ declare namespace API {
 
   type PageResultArticle = {
     list?: Article[]
+    total?: string
+  }
+
+  type PageResultArticleVO = {
+    list?: ArticleVO[]
     total?: string
   }
 
@@ -1185,6 +1240,7 @@ declare namespace API {
     hotFlag?: number
     newFlag?: number
     directFlag?: number
+    imageUrls?: string[]
   }
 
   type ProductDetailVO = {
@@ -1350,6 +1406,8 @@ declare namespace API {
     content?: string
     score?: number
     imageUrls?: string
+    replyContent?: string
+    replyTime?: string
     createTime?: string
   }
 
@@ -1512,5 +1570,66 @@ declare namespace API {
     userRole?: string
     userStatus?: number
     createTime?: string
+  }
+
+  type BaseResponseMerchantVO = {
+    code?: number
+    data?: MerchantVO
+    message?: string
+    traceId?: string
+  }
+
+  type ProductShelfRequest = {
+    id?: string
+    shelfStatus?: number
+  }
+
+  type ProductStockUpdateRequest = {
+    skuId?: string
+    stock?: number
+  }
+
+  type OrderShipRequest = {
+    id?: string
+    logisticsNo?: string
+  }
+
+  type MerchantSkuVO = {
+    id?: string
+    productId?: string
+    productName?: string
+    skuName?: string
+    stock?: number
+    lockedStock?: number
+  }
+
+  type BaseResponseListMerchantSkuVO = {
+    code?: number
+    data?: MerchantSkuVO[]
+    message?: string
+    traceId?: string
+  }
+
+  type ReviewReplyRequest = {
+    reviewId?: string
+    content?: string
+  }
+
+  type TraceBatch = {
+    id?: string
+    productId?: string
+    batchNo?: string
+    originPlace?: string
+    originAreaCode?: string
+    pickDate?: string
+    auditStatus?: string
+    merchantId?: string
+  }
+
+  type BaseResponsePageResultTraceBatch = {
+    code?: number
+    data?: { list?: TraceBatch[]; total?: number }
+    message?: string
+    traceId?: string
   }
 }

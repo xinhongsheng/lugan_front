@@ -26,6 +26,35 @@ export async function deleteArticle(body: API.DeleteRequest, options?: { [key: s
   })
 }
 
+/** 已发布文章详情 GET /article/get/vo */
+export async function getArticleVoById(
+  params: API.getArticleVOByIdParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponseArticleDetailVO>('/article/get/vo', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  })
+}
+
+/** 已发布文章分页 POST /article/open/list/page/vo */
+export async function listOpenArticleVoByPage(
+  body: API.ArticleQueryRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponsePageResultArticleVO>('/article/open/list/page/vo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
 /** 此处后端没有提供注释 POST /article/list/page/vo */
 export async function listArticleByPage(
   body: API.AdminQueryRequest,

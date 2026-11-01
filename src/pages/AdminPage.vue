@@ -495,7 +495,7 @@ onMounted(async () => {
     </template>
 
     <a-card :bordered="false" class="block">
-      <a-form layout="inline" @finish="search">
+      <a-form layout="inline" :model="query" @finish="search">
         <a-form-item label="关键字">
           <a-input v-model:value="query.keyword" allow-clear placeholder="账号、昵称、标题或店铺" />
         </a-form-item>

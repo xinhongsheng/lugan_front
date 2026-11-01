@@ -8,7 +8,6 @@ import {
   getTradeOrderVoById,
   payOrder,
   refundOrder,
-  shipOrder,
 } from '@/api/tradeOrderController'
 import { addReview, uploadReviewImage } from '@/api/reviewController'
 import { ORDER_STATUS_MAP, PAY_CHANNEL_MAP, REFUND_STATUS_MAP } from '@/constants/order'
@@ -101,10 +100,6 @@ function pay(channel: string) {
 
 function cancel() {
   return run(() => cancelOrder({ id: detail.value.id }), '订单已取消，库存已释放')
-}
-
-function ship() {
-  return run(() => shipOrder({ id: detail.value.id }), '已模拟发货')
 }
 
 function confirmReceive() {
@@ -213,7 +208,6 @@ watch(() => route.query.id, load)
 
       <a-card v-if="detail.orderStatus === 'unshipped'" :bordered="false" class="sheet">
         <a-space>
-          <a-button type="primary" :loading="acting" @click="ship">模拟发货</a-button>
           <a-input v-model:value="refundReason" placeholder="退款原因" style="width: 220px" />
           <a-button :loading="acting" @click="refund">申请退款</a-button>
         </a-space>

@@ -82,3 +82,68 @@ export async function updateProduct(body: API.Product, options?: { [key: string]
     ...(options || {}),
   })
 }
+
+/** 商家商品分页 POST /product/my/list/page/vo */
+export async function listMyProduct(body: API.AdminQueryRequest, options?: { [key: string]: any }) {
+  return request<API.BaseResponsePageResultProduct>('/product/my/list/page/vo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
+/** 提交商品审核 POST /product/submit */
+export async function submitProduct(body: API.ProductShelfRequest, options?: { [key: string]: any }) {
+  return request<API.BaseResponseBoolean>('/product/submit', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
+/** 商品上下架 POST /product/shelf */
+export async function shelfProduct(body: API.ProductShelfRequest, options?: { [key: string]: any }) {
+  return request<API.BaseResponseBoolean>('/product/shelf', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
+/** 设置现货库存 POST /productSku/stock/update */
+export async function updateSkuStock(body: API.ProductStockUpdateRequest, options?: { [key: string]: any }) {
+  return request<API.BaseResponseBoolean>('/productSku/stock/update', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
+export async function listMySkus(options?: { [key: string]: any }) {
+  return request<API.BaseResponseListMerchantSkuVO>('/productSku/my/list', {
+    method: 'POST',
+    ...(options || {}),
+  })
+}
+
+export async function uploadProductCover(file: File, options?: { [key: string]: any }) {
+  const data = new FormData()
+  data.append('file', file)
+  return request<API.BaseResponseString>('/product/upload/cover', {
+    method: 'POST',
+    data,
+    ...(options || {}),
+  })
+}

@@ -412,6 +412,7 @@ onMounted(async () => {
           >
             {{ item.label }}
           </button>
+          <router-link class="menu-link" to="/merchant/apply">商家入驻</router-link>
         </aside>
         <section class="panel">
           <template v-if="section === 'profile'">
@@ -773,7 +774,8 @@ aside {
   padding: 8px;
 }
 
-aside button {
+aside button,
+aside a.menu-link {
   height: 40px;
   border: 0;
   border-radius: 6px;
@@ -783,6 +785,9 @@ aside button {
   text-align: left;
   padding: 0 12px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
 }
 
 aside button.active {

@@ -52,3 +52,23 @@ export async function updateShopStatus(body: API.Merchant, options?: { [key: str
     ...(options || {}),
   })
 }
+
+/** 此处后端没有提供注释 GET /merchant/my */
+export async function getMyMerchant(options?: { [key: string]: any }) {
+  return request<API.BaseResponseMerchantVO>('/merchant/my', {
+    method: 'GET',
+    ...(options || {}),
+  })
+}
+
+/** 此处后端没有提供注释 POST /merchant/update */
+export async function updateMerchant(body: API.Merchant, options?: { [key: string]: any }) {
+  return request<API.BaseResponseBoolean>('/merchant/update', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
