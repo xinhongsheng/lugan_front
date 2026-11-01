@@ -8,7 +8,7 @@ import { calcFreight } from '@/api/freightController'
 import { addCart } from '@/api/cartController'
 import { addOrder } from '@/api/tradeOrderController'
 import { addFavorite } from '@/api/favoriteController'
-import { homePhoto } from '@/constants/home'
+import { luganFruitSvg } from '@/constants/taste'
 
 const route = useRoute()
 const router = useRouter()
@@ -28,7 +28,7 @@ const provinces = [
 
 const currentSku = computed(() => detail.value.skuList?.find((item) => item.id === skuId.value))
 
-const cover = computed(() => detail.value.coverUrl || homePhoto(1))
+const cover = computed(() => detail.value.coverUrl || luganFruitSvg(1))
 
 const priceText = computed(() => {
   const price = currentSku.value?.salePrice ?? detail.value.price
@@ -193,7 +193,6 @@ watch(
         <div class="hero">
           <img class="cover" :src="cover" :alt="detail.name || '永春芦柑'" />
           <div class="buy">
-            <p class="eyebrow">永春芦柑</p>
             <h1>{{ detail.name || '商品详情' }}</h1>
             <p class="detail-text">{{ detail.detailText }}</p>
             <div class="price-row">
@@ -270,11 +269,12 @@ watch(
 #product-detail-page {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .sheet {
-  border-radius: 16px;
+  border-radius: var(--radius);
+  background: var(--paper);
 }
 
 .hero {
@@ -287,29 +287,24 @@ watch(
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
-  border-radius: 16px;
-  background: #f2f5ee;
-}
-
-.eyebrow {
-  margin: 0;
-  color: #2f7d46;
-  font-size: 13px;
-  letter-spacing: 0.12em;
+  border-radius: var(--radius);
+  background: var(--field-2);
 }
 
 h1 {
-  margin: 6px 0 8px;
-  color: #1f2328;
-  font-family: KaiTi, '楷体', serif;
-  font-size: 32px;
-  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
 }
 
 .detail-text {
   margin: 0;
-  color: #5c6570;
-  line-height: 1.7;
+  color: var(--muted);
+  font-size: var(--step-body);
+  line-height: 1.55;
 }
 
 .price-row {
@@ -320,9 +315,10 @@ h1 {
 }
 
 .price {
-  color: #e8590c;
+  color: var(--ink);
   font-size: 32px;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 
 .price i {
@@ -335,7 +331,7 @@ h1 {
 .stock,
 .rule,
 .freight {
-  color: #6b7280;
+  color: var(--muted);
 }
 
 .sku-row,
@@ -349,18 +345,19 @@ h1 {
 }
 
 .sku {
-  padding: 6px 14px;
-  border: 1px solid #d9e3d4;
-  border-radius: 999px;
-  background: #fff;
-  color: #24402c;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--field-2);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 500;
   cursor: pointer;
 }
 
 .sku.active {
-  border-color: #2f7d46;
-  background: #eef7ef;
-  color: #1f6b3a;
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 
 .facts {
@@ -375,19 +372,19 @@ h1 {
   flex-direction: column;
   gap: 4px;
   padding: 12px 14px;
-  border-radius: 12px;
-  background: #f6f8f3;
+  border-radius: var(--radius);
+  background: var(--surface);
 }
 
 .fact span {
-  color: #8a9099;
-  font-size: 12px;
+  color: var(--muted);
+  font-size: var(--step-small);
 }
 
 .review,
 .trace {
   padding: 12px 0;
-  border-bottom: 1px solid #eef0e9;
+  border-bottom: 1px solid var(--field-2);
 }
 
 .photos {
@@ -399,7 +396,7 @@ h1 {
   width: 72px;
   height: 72px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: var(--radius);
 }
 
 @media (max-width: 800px) {

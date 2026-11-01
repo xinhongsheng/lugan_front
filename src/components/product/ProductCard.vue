@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { homePhoto } from '@/constants/home'
+import { luganFruitSvg } from '@/constants/taste'
 
 const router = useRouter()
 
@@ -10,7 +10,7 @@ const props = defineProps<{
   index?: number
 }>()
 
-const cover = computed(() => props.product.coverUrl || homePhoto(props.index ?? 0))
+const cover = computed(() => props.product.coverUrl || luganFruitSvg(props.index ?? 0))
 
 const priceText = computed(() => {
   const price = props.product.price
@@ -24,18 +24,17 @@ const metaText = computed(
   () => [props.product.origin, props.product.spec].filter(Boolean).join(' · ') || '永春芦柑',
 )
 
-const badges = computed(() => {
-  const list: { text: string; tone: string }[] = []
+const stamp = computed(() => {
   if (props.product.directFlag === 1) {
-    list.push({ text: '产地直供', tone: 'direct' })
+    return '直供'
   }
   if (props.product.hotFlag === 1) {
-    list.push({ text: '热销', tone: 'hot' })
+    return '热销'
   }
   if (props.product.newFlag === 1) {
-    list.push({ text: '新品', tone: 'new' })
+    return '新品'
   }
-  return list
+  return ''
 })
 
 function openDetail() {
@@ -49,12 +48,8 @@ function openDetail() {
 <template>
   <article class="product-card" role="link" tabindex="0" @click="openDetail" @keyup.enter="openDetail">
     <div class="thumb">
-      <img :src="cover" :alt="product.name ?? '永春芦柑'" loading="lazy" />
-      <div v-if="badges.length" class="badges">
-        <span v-for="badge in badges" :key="badge.text" class="badge" :class="badge.tone">
-          {{ badge.text }}
-        </span>
-      </div>
+      <img :src="cover" :alt="product.name ?? '永春芦柑'" width="400" height="400" loading="lazy" />
+      <span v-if="stamp" class="stamp">{{ stamp }}</span>
     </div>
     <div class="info">
       <h3 class="name">{{ product.name || '永春芦柑' }}</h3>
@@ -72,66 +67,52 @@ function openDetail() {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #fff;
-  border: 1px solid #eef0e9;
-  border-radius: 14px;
-  transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s;
+  background: var(--surface, #f4f4f2);
+  border-radius: var(--radius, 4px);
   cursor: pointer;
+  transition: background 0.25s var(--ease-out, ease), transform 0.25s var(--ease-out, ease);
 }
 
 .product-card:hover {
-  border-color: #cfe3c9;
-  box-shadow: 0 10px 24px rgba(31, 92, 53, 0.12);
-  transform: translateY(-4px);
+  background: var(--field-2, #e3e1dc);
+  transform: translateY(-2px);
+}
+
+.product-card:focus-visible {
+  outline: 2px solid var(--accent, #f7941d);
+  outline-offset: 2px;
 }
 
 .thumb {
   position: relative;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  background: #f2f5ee;
+  background: var(--field-2, #e3e1dc);
 }
 
 .thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  display: block;
+  transition: transform 0.45s var(--ease-out, ease);
 }
 
 .product-card:hover .thumb img {
-  transform: scale(1.06);
+  transform: scale(1.04);
 }
 
-.badges {
+.stamp {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  display: flex;
-  gap: 6px;
-}
-
-.badge {
-  padding: 1px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  line-height: 20px;
-  backdrop-filter: blur(4px);
-}
-
-.badge.direct {
-  color: #1f6b3a;
-  background: rgba(233, 247, 233, 0.92);
-}
-
-.badge.hot {
-  color: #b5450c;
-  background: rgba(255, 240, 228, 0.94);
-}
-
-.badge.new {
-  color: #1d5bb8;
-  background: rgba(232, 241, 255, 0.94);
+  top: 0;
+  left: 0;
+  padding: 4px 10px;
+  background: var(--accent, #f7941d);
+  color: var(--accent-ink, #1f2b4d);
+  font-size: var(--step-small, 0.8125rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
 }
 
 .info {
@@ -139,17 +120,18 @@ function openDetail() {
   flex: 1;
   flex-direction: column;
   gap: 6px;
-  padding: 12px 14px 14px;
+  padding: 14px 14px 16px;
 }
 
 .name {
   display: -webkit-box;
   overflow: hidden;
   margin: 0;
-  color: #1f2328;
+  color: var(--ink, #1f2b4d);
   font-size: 15px;
   font-weight: 600;
-  line-height: 1.45;
+  letter-spacing: -0.02em;
+  line-height: 1.4;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -157,8 +139,8 @@ function openDetail() {
 .meta {
   overflow: hidden;
   margin: 0;
-  color: #8a9099;
-  font-size: 12.5px;
+  color: var(--muted, #6a7186);
+  font-size: 13px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -168,14 +150,14 @@ function openDetail() {
   align-items: baseline;
   gap: 2px;
   margin-top: auto;
-  padding-top: 4px;
+  padding-top: 6px;
 }
 
 .price {
-  color: #e8590c;
+  color: var(--ink, #1f2b4d);
   font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.4px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 
 .price i {
@@ -186,7 +168,7 @@ function openDetail() {
 }
 
 .unit {
-  color: #b9bec6;
+  color: var(--muted, #6a7186);
   font-size: 12px;
 }
 </style>

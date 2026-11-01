@@ -1,0 +1,1370 @@
+{
+ "url": "http://localhost:5173/",
+ "at": "2026-10-30T15:11:39.392Z",
+ "allow": [],
+ "viewports": [
+  {
+   "width": 1440,
+   "height": 900,
+   "load": "load",
+   "screens": 5,
+   "filled": [
+    0.91,
+    0.74,
+    0.76,
+    0.89,
+    0.79
+   ],
+   "motion": {
+    "elements": 15,
+    "css": 7,
+    "transitions": 7,
+    "scripted": 1,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "page": {
+     "height": 3962,
+     "screens": 4.4,
+     "words": 99,
+     "img": 5,
+     "video": 0,
+     "canvas": 0,
+     "svg": 2,
+     "sections": 7,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 12,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "farm-674.jpg",
+      "farm-915.jpg",
+      "farm-808.jpg"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "达埔果园装箱签",
+     "words": 1,
+     "chars": 7,
+     "lines": 1,
+     "size": 64,
+     "vw": 4.4,
+     "font": "Switzer",
+     "weight": 600,
+     "tracking": -0.04,
+     "leading": 0.95,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "center",
+     "widthRatio": 0.31,
+     "top": 238,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "永春芦柑",
+     "words": 1,
+     "lines": 1,
+     "size": 16,
+     "font": "Switzer"
+    },
+    "headings": [
+     {
+      "text": "达埔果园装箱签",
+      "words": 1,
+      "chars": 7,
+      "lines": 1,
+      "size": 64,
+      "vw": 4.4,
+      "font": "Switzer",
+      "weight": 600,
+      "tracking": -0.04,
+      "leading": 0.95,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.31,
+      "top": 238,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "装一箱新鲜芦柑",
+      "words": 1,
+      "chars": 7,
+      "lines": 1,
+      "size": 35.2,
+      "vw": 2.4,
+      "font": "Switzer",
+      "weight": 600,
+      "tracking": -0.03,
+      "leading": 1.15,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.33,
+      "top": 3350,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "永 春 芦 柑",
+      "words": 4,
+      "chars": 7,
+      "lines": 1,
+      "size": 72,
+      "vw": 5,
+      "font": "Switzer",
+      "weight": 600,
+      "tracking": -0.04,
+      "leading": 1.57,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.72,
+      "top": 3629,
+      "tag": "div",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 3,
+     "maxLines": 1,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": 4,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Switzer",
+       "share": 1,
+       "mono": false
+      }
+     ],
+     "familyCount": 1,
+     "sizes": [
+      12,
+      13,
+      14,
+      15,
+      16,
+      19,
+      20,
+      22,
+      26,
+      35,
+      64,
+      72
+     ],
+     "sizeCount": 12,
+     "notLoaded": [],
+     "body": {
+      "font": "Switzer",
+      "size": 13,
+      "leading": 1.5,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 4.9
+     },
+     "measureChars": 160,
+     "max": {
+      "size": 72,
+      "vw": 5,
+      "font": "Switzer",
+      "text": "永"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0.2,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#ffffff",
+     "bodyBgHsl": {
+      "h": 0,
+      "s": 0,
+      "l": 1
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#f0f2f5",
+       "top": 0,
+       "hsl": {
+        "h": 216,
+        "s": 0.2,
+        "l": 0.95
+       }
+      },
+      {
+       "color": "#05070a",
+       "top": 48,
+       "hsl": {
+        "h": 216,
+        "s": 0.33,
+        "l": 0.03
+       }
+      },
+      {
+       "color": "#f7f5f0",
+       "top": 104,
+       "hsl": {
+        "h": 43,
+        "s": 0.3,
+        "l": 0.95
+       }
+      },
+      {
+       "color": "#ffffff",
+       "top": 1059,
+       "hsl": {
+        "h": 0,
+        "s": 0,
+        "l": 1
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#6a7186",
+       "share": 0.53
+      },
+      {
+       "color": "#1f2b4d",
+       "share": 0.29
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.14
+      },
+      {
+       "color": "#000000",
+       "share": 0.03
+      }
+     ],
+     "button": {
+      "bg": "#e3e1dc",
+      "hsl": {
+       "h": 43,
+       "s": 0.11,
+       "l": 0.88
+      },
+      "fg": "#1f2b4d"
+     },
+     "lowContrast": [
+      {
+       "text": "达埔果园本周开秤，精品果按斤装订箱发出。",
+       "ratio": 3.4,
+       "need": 4.5,
+       "size": 14,
+       "fg": "#6a7186",
+       "bg": "#d9d6cf"
+      },
+      {
+       "text": "永春达埔 · 5斤装",
+       "ratio": 4.4,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#6a7186",
+       "bg": "#f4f4f2"
+      }
+     ]
+    },
+    "buttons": {
+     "count": 5,
+     "inHero": 4,
+     "radius": 4,
+     "height": 34,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "搜 果",
+      "永春芦柑",
+      "芦柑副产品",
+      "其他永春土特产"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 1,
+     "shadowOverlay": 1,
+     "shadowSamples": [
+      "label.ant-segmented-item.ant-segmented-item-selected → rgba(0, 0, 0, 0.03) 0px 1px 2px 0px, rgba(0, 0, 0, 0.02) 0px 1px 6px -1px, rgba("
+     ],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 1,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 12,
+     "roundedMedia": 1,
+     "mediaRadius": 4,
+     "textShadow": 9,
+     "cardRows": [
+      {
+       "count": 4,
+       "iconTopped": false,
+       "rounded": false,
+       "top": 1059
+      }
+     ]
+    },
+    "heroMedia": [
+     {
+      "type": "bg-image",
+      "ratio": 0.95
+     }
+    ],
+    "nav": {
+     "links": 0,
+     "fixed": false,
+     "height": 48,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "switzer"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "pageH": 3962,
+    "margins": {
+     "left": 200,
+     "right": 239
+    },
+    "sections": [
+     {
+      "sel": "section.room",
+      "tag": "section",
+      "top": 48,
+      "height": 1011,
+      "words": 31,
+      "media": 3,
+      "middle": 0,
+      "heading": {
+       "text": "达埔果园装箱签",
+       "size": 64,
+       "tag": "h1"
+      },
+      "left": 408,
+      "right": 408,
+      "textLeft": 408,
+      "textRight": 439,
+      "fullBleed": true,
+      "footer": false,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "section.showcase.reveal",
+      "tag": "section",
+      "top": 1059,
+      "height": 376,
+      "words": 5,
+      "media": 7,
+      "middle": 1106,
+      "heading": null,
+      "left": 0,
+      "right": 0,
+      "textLeft": 220,
+      "textRight": 369,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.zone.reveal",
+      "tag": "section",
+      "top": 1435,
+      "height": 494,
+      "words": 11,
+      "media": 1,
+      "middle": 566,
+      "heading": {
+       "text": "热门推荐",
+       "size": 26,
+       "tag": "h2"
+      },
+      "left": 200,
+      "right": 213,
+      "textLeft": 200,
+      "textRight": 213,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.spines.reveal",
+      "tag": "section",
+      "top": 1930,
+      "height": 326,
+      "words": 7,
+      "media": 0,
+      "middle": 10,
+      "heading": {
+       "text": "果园见闻",
+       "size": 26,
+       "tag": "h2"
+      },
+      "left": 200,
+      "right": 200,
+      "textLeft": 200,
+      "textRight": 239,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.proof",
+      "tag": "section",
+      "top": 2304,
+      "height": 941,
+      "words": 7,
+      "media": 0,
+      "middle": 24,
+      "heading": {
+       "text": "产地名册",
+       "size": 26,
+       "tag": "h2"
+      },
+      "left": 476,
+      "right": 482,
+      "textLeft": 476,
+      "textRight": 482,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.cta-row.reveal",
+      "tag": "section",
+      "top": 3293,
+      "height": 280,
+      "words": 3,
+      "media": 1,
+      "middle": 50,
+      "heading": {
+       "text": "装一箱新鲜芦柑",
+       "size": 35,
+       "tag": "h2"
+      },
+      "left": 160,
+      "right": 578,
+      "textLeft": 482,
+      "textRight": 578,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "footer.brand-foot",
+      "tag": "footer",
+      "top": 3573,
+      "height": 326,
+      "words": 15,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": 200,
+      "right": 340,
+      "textLeft": 200,
+      "textRight": 340,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     }
+    ],
+    "gaps": [
+     {
+      "top": 3576,
+      "height": 276
+     }
+    ],
+    "h1s": [
+     {
+      "text": "永春芦柑",
+      "size": 16,
+      "top": 0,
+      "firstScreen": true
+     },
+     {
+      "text": "达埔果园装箱签",
+      "size": 64,
+      "top": 238,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 200,
+      "n": 2
+     },
+     {
+      "x": 214,
+      "n": 2
+     },
+     {
+      "x": 476,
+      "n": 2
+     },
+     {
+      "x": 408,
+      "n": 1
+     },
+     {
+      "x": 1099,
+      "n": 1
+     },
+     {
+      "x": 1181,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 9,
+    "bodySize": 13,
+    "stage": false,
+    "explains": true,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": null,
+   "consoleErrors": []
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "load": "load",
+   "screens": 7,
+   "filled": [
+    0.84,
+    0.93,
+    0.84,
+    0.66,
+    0.92,
+    0.66,
+    0.61
+   ],
+   "motion": {
+    "elements": 15,
+    "css": 7,
+    "transitions": 7,
+    "scripted": 1,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "page": {
+     "height": 5089,
+     "screens": 6,
+     "words": 104,
+     "img": 5,
+     "video": 0,
+     "canvas": 0,
+     "svg": 3,
+     "sections": 7,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 12,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "farm-674.jpg",
+      "farm-915.jpg",
+      "farm-808.jpg"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "达埔果园装箱签",
+     "words": 1,
+     "chars": 7,
+     "lines": 1,
+     "size": 33.3,
+     "vw": 8.5,
+     "font": "Switzer",
+     "weight": 600,
+     "tracking": -0.04,
+     "leading": 0.95,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "left",
+     "widthRatio": 0.59,
+     "top": 172,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "达埔果园装箱签",
+     "words": 1,
+     "lines": 1,
+     "size": 33.3,
+     "font": "Switzer"
+    },
+    "headings": [
+     {
+      "text": "达埔果园装箱签",
+      "words": 1,
+      "chars": 7,
+      "lines": 1,
+      "size": 33.3,
+      "vw": 8.5,
+      "font": "Switzer",
+      "weight": 600,
+      "tracking": -0.04,
+      "leading": 0.95,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.59,
+      "top": 172,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "装一箱新鲜芦柑",
+      "words": 1,
+      "chars": 7,
+      "lines": 1,
+      "size": 24.7,
+      "vw": 6.3,
+      "font": "Switzer",
+      "weight": 600,
+      "tracking": -0.03,
+      "leading": 1.15,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.71,
+      "top": 4375,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "永 春 芦 柑",
+      "words": 4,
+      "chars": 7,
+      "lines": 2,
+      "size": 32,
+      "vw": 8.2,
+      "font": "Switzer",
+      "weight": 600,
+      "tracking": -0.04,
+      "leading": 1.57,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.92,
+      "top": 4729,
+      "tag": "div",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 3,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": 4,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Switzer",
+       "share": 1,
+       "mono": false
+      }
+     ],
+     "familyCount": 1,
+     "sizes": [
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      20,
+      22,
+      25,
+      32,
+      33
+     ],
+     "sizeCount": 11,
+     "notLoaded": [],
+     "body": {
+      "font": "Switzer",
+      "size": 13,
+      "leading": 1.5,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 4.9
+     },
+     "measureChars": 55,
+     "max": {
+      "size": 33.3,
+      "vw": 8.5,
+      "font": "Switzer",
+      "text": "达埔果园装箱签"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0.18,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#ffffff",
+     "bodyBgHsl": {
+      "h": 0,
+      "s": 0,
+      "l": 1
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#f0f2f5",
+       "top": 0,
+       "hsl": {
+        "h": 216,
+        "s": 0.2,
+        "l": 0.95
+       }
+      },
+      {
+       "color": "#05070a",
+       "top": 48,
+       "hsl": {
+        "h": 216,
+        "s": 0.33,
+        "l": 0.03
+       }
+      },
+      {
+       "color": "#f7f5f0",
+       "top": 72,
+       "hsl": {
+        "h": 43,
+        "s": 0.3,
+        "l": 0.95
+       }
+      },
+      {
+       "color": "#ffffff",
+       "top": 1388,
+       "hsl": {
+        "h": 0,
+        "s": 0,
+        "l": 1
+       }
+      },
+      {
+       "color": "#e3e1dc",
+       "top": 1436,
+       "hsl": {
+        "h": 43,
+        "s": 0.11,
+        "l": 0.88
+       }
+      },
+      {
+       "color": "#f4f4f2",
+       "top": 1770,
+       "hsl": {
+        "h": 60,
+        "s": 0.08,
+        "l": 0.95
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#6a7186",
+       "share": 0.57
+      },
+      {
+       "color": "#1f2b4d",
+       "share": 0.27
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.13
+      },
+      {
+       "color": "#000000",
+       "share": 0.02
+      }
+     ],
+     "button": {
+      "bg": "#e3e1dc",
+      "hsl": {
+       "h": 43,
+       "s": 0.11,
+       "l": 0.88
+      },
+      "fg": "#1f2b4d"
+     },
+     "lowContrast": [
+      {
+       "text": "每箱印采摘批次号，签收可对照溯源记录。",
+       "ratio": 3,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#6a7186",
+       "bg": "#cfcbbf"
+      },
+      {
+       "text": "达埔果园本周开秤，精品果按斤装订箱发出。",
+       "ratio": 3.4,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#6a7186",
+       "bg": "#d9d6cf"
+      },
+      {
+       "text": "节日礼盒装提前锁库存，产地直发省内次日达。",
+       "ratio": 3.7,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#6a7186",
+       "bg": "#e3e1dc"
+      },
+      {
+       "text": "产业资讯",
+       "ratio": 4.4,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#6a7186",
+       "bg": "#f4f4f2"
+      },
+      {
+       "text": "产地介绍",
+       "ratio": 4.4,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#6a7186",
+       "bg": "#f4f4f2"
+      },
+      {
+       "text": "内容整理中",
+       "ratio": 4.4,
+       "need": 4.5,
+       "size": 17,
+       "fg": "#6a7186",
+       "bg": "#f4f4f2"
+      }
+     ]
+    },
+    "buttons": {
+     "count": 5,
+     "inHero": 4,
+     "radius": 4,
+     "height": 32,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "搜 果",
+      "永春芦柑",
+      "芦柑副产品",
+      "其他永春土特产"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 1,
+     "shadowOverlay": 1,
+     "shadowSamples": [
+      "label.ant-segmented-item.ant-segmented-item-selected → rgba(0, 0, 0, 0.03) 0px 1px 2px 0px, rgba(0, 0, 0, 0.02) 0px 1px 6px -1px, rgba("
+     ],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 1,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 11,
+     "roundedMedia": 1,
+     "mediaRadius": 4,
+     "textShadow": 9,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "bg-image",
+      "ratio": 0.94
+     }
+    ],
+    "nav": {
+     "links": 0,
+     "fixed": false,
+     "height": 48,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "switzer"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "pageH": 5089,
+    "margins": {
+     "left": 16,
+     "right": 16
+    },
+    "sections": [
+     {
+      "sel": "section.room",
+      "tag": "section",
+      "top": 48,
+      "height": 1340,
+      "words": 31,
+      "media": 3,
+      "middle": 0,
+      "heading": {
+       "text": "达埔果园装箱签",
+       "size": 33,
+       "tag": "h1"
+      },
+      "left": 44,
+      "right": 44,
+      "textLeft": 44,
+      "textRight": 58,
+      "fullBleed": true,
+      "footer": false,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "section.showcase.reveal",
+      "tag": "section",
+      "top": 1388,
+      "height": 710,
+      "words": 5,
+      "media": 7,
+      "middle": 700,
+      "heading": null,
+      "left": 0,
+      "right": 0,
+      "textLeft": 36,
+      "textRight": 182,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.zone.reveal",
+      "tag": "section",
+      "top": 2098,
+      "height": 634,
+      "words": 11,
+      "media": 1,
+      "middle": 0,
+      "heading": {
+       "text": "热门推荐",
+       "size": 20,
+       "tag": "h2"
+      },
+      "left": 16,
+      "right": 16,
+      "textLeft": 16,
+      "textRight": 149,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.spines.reveal",
+      "tag": "section",
+      "top": 2732,
+      "height": 482,
+      "words": 13,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "采摘季开市",
+       "size": 22,
+       "tag": "h3"
+      },
+      "left": 16,
+      "right": 16,
+      "textLeft": 16,
+      "textRight": 36,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.proof",
+      "tag": "section",
+      "top": 3262,
+      "height": 915,
+      "words": 7,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "产地名册",
+       "size": 20,
+       "tag": "h2"
+      },
+      "left": 66,
+      "right": 68,
+      "textLeft": 66,
+      "textRight": 68,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.cta-row.reveal",
+      "tag": "section",
+      "top": 4225,
+      "height": 447,
+      "words": 3,
+      "media": 1,
+      "middle": 0,
+      "heading": {
+       "text": "装一箱新鲜芦柑",
+       "size": 25,
+       "tag": "h2"
+      },
+      "left": 16,
+      "right": 16,
+      "textLeft": 56,
+      "textRight": 62,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "footer.brand-foot",
+      "tag": "footer",
+      "top": 4673,
+      "height": 352,
+      "words": 15,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": 16,
+      "right": 17,
+      "textLeft": 16,
+      "textRight": 17,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     }
+    ],
+    "gaps": [
+     {
+      "top": 4524,
+      "height": 416
+     }
+    ],
+    "h1s": [
+     {
+      "text": "达埔果园装箱签",
+      "size": 33,
+      "top": 172,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 30,
+      "n": 4
+     },
+     {
+      "x": 16,
+      "n": 2
+     },
+     {
+      "x": 44,
+      "n": 1
+     },
+     {
+      "x": 56,
+      "n": 1
+     },
+     {
+      "x": 66,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 9,
+    "bodySize": 13,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": null,
+   "consoleErrors": []
+  }
+ ],
+ "findings": [
+  {
+   "level": "FAIL",
+   "id": "shadow",
+   "width": 1440,
+   "message": "1 box-shadow(s) on elements at rest: label.ant-segmented-item.ant-segmented-item-selected → rgba(0, 0, 0, 0.03) 0px 1px 2px 0px, rgba(0, 0, 0, 0.02) 0px 1px 6px -1px, rgba(",
+   "fix": "Remove. Separate surfaces with a tone step or space. Shadows are for things that really float (menus, dialogs, sticky bars).",
+   "alsoAt": [
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "text-shadow",
+   "width": 1440,
+   "message": "9 text-shadow(s).",
+   "fix": "Remove; fix legibility with a scrim or a different crop.",
+   "alsoAt": [
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "palette-cream",
+   "width": 1440,
+   "message": "Yellow-cream background (section #f7f5f0).",
+   "fix": "Use the drawn palette. If you want warmth, take a low-chroma stone or bone, not a yellow cream.",
+   "alsoAt": [
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "contrast",
+   "width": 1440,
+   "message": "Low-contrast text: \"达埔果园本周开秤，精品果按斤装订箱发出。\" 3.4:1 needs 4.5:1; \"永春达埔 · 5斤装\" 4.4:1 needs 4.5:1",
+   "fix": "Darken or lighten the text colour.",
+   "alsoAt": [
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "size-count",
+   "width": 1440,
+   "message": "12 different font sizes (12, 13, 14, 15, 16, 19, 20, 22, 26, 35, 64, 72).",
+   "fix": "A page needs about five: display, heading, lead, body, small.",
+   "alsoAt": [
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "body-size",
+   "width": 1440,
+   "message": "Body text is 13px (the size most of the running text is set in).",
+   "fix": "Body copy 16–20px. Map small sizes from blueprints onto your body step.",
+   "alsoAt": [
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "grey-body",
+   "width": 1440,
+   "message": "The running text is a soft grey on its ground (4.9:1).",
+   "fix": "Set body copy in the full ink (7:1 or more). Keep the muted ink for secondary notes; pages read thin and unfinished when everything is grey.",
+   "alsoAt": [
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "no-footage",
+   "width": 1440,
+   "message": "No video anywhere on the page.",
+   "fix": "Look for one honest clip with scripts/assets.mjs --video (the place, the material, the process) and use it as a muted loop with a poster frame. Defend its absence only if no clip fits the subject."
+  },
+  {
+   "level": "WARN",
+   "id": "measure",
+   "width": 1440,
+   "message": "Longest paragraph runs about 160 characters per line.",
+   "fix": "Cap paragraphs at 45–75 characters (max-width: 60ch)."
+  },
+  {
+   "level": "WARN",
+   "id": "dev-server",
+   "width": 1440,
+   "message": "This page is served by a development server (Vite, webpack or Next in dev mode).",
+   "fix": "Run the last gate on the production build too (vite build && vite preview, next build && next start, or the built index.html): minifiers and bundlers change the CSS a visitor receives.",
+   "alsoAt": [
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "off-centre",
+   "width": 1440,
+   "message": "The margins differ: 200px on the left, 239px on the right, at 1440px.",
+   "fix": "Put the navigation and the content on one pair of margins; check for padding on one side only, a scrollbar gutter, or a header on another inset than the page."
+  },
+  {
+   "level": "WARN",
+   "id": "small-title",
+   "width": 1440,
+   "message": "The h1 is 16px (\"永春芦柑\").",
+   "fix": "Set the title at display size, or make the large text of the first screen the h1."
+  },
+  {
+   "level": "WARN",
+   "id": "many-h1",
+   "width": 1440,
+   "message": "2 h1 elements.",
+   "fix": "One h1 per page; section titles are h2."
+  },
+  {
+   "level": "WARN",
+   "id": "still-page",
+   "width": 1440,
+   "message": "Little motion: 15 element(s) moved while the page loaded and scrolled.",
+   "fix": "Give every section an entrance for its parts (not one fade of the whole block) and add one moving picture: a looping clip or a slow move on a photograph."
+  },
+  {
+   "level": "WARN",
+   "id": "blank-gap",
+   "width": 390,
+   "message": "A 416px stretch at 4524px holds nothing.",
+   "fix": "Check that it is a deliberate rest (once per page at most); otherwise close it to the normal section gap."
+  },
+  {
+   "level": "WARN",
+   "id": "name-only-title",
+   "width": 390,
+   "message": "The h1 is a bare name (\"达埔果园装箱签\") and nothing else on the first screen says what this is.",
+   "fix": "Keep the name if it leads, and give the line under it (18px or more) the plain words: what it is, for whom, where or when. In the study of 97 Sites of the Day, first screens that named nothing lost usability and content points."
+  }
+ ],
+ "images": [
+  {
+   "viewport": "desktop",
+   "width": 1440,
+   "fold": "C:\\Users\\19099\\Desktop\\基于JAVA的泉州永春芦柑营销平台的设计与实现\\lugan-front\\.taste-skill\\inspect-home2\\desktop-fold.jpg",
+   "pages": [
+    "C:\\Users\\19099\\Desktop\\基于JAVA的泉州永春芦柑营销平台的设计与实现\\lugan-front\\.taste-skill\\inspect-home2\\desktop-page-01.jpg",
+    "C:\\Users\\19099\\Desktop\\基于JAVA的泉州永春芦柑营销平台的设计与实现\\lugan-front\\.taste-skill\\inspect-home2\\desktop-page-02.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "mobile",
+   "width": 390,
+   "fold": "C:\\Users\\19099\\Desktop\\基于JAVA的泉州永春芦柑营销平台的设计与实现\\lugan-front\\.taste-skill\\inspect-home2\\mobile-fold.jpg",
+   "pages": [
+    "C:\\Users\\19099\\Desktop\\基于JAVA的泉州永春芦柑营销平台的设计与实现\\lugan-front\\.taste-skill\\inspect-home2\\mobile-page-01.jpg"
+   ],
+   "film": []
+  }
+ ]
+}

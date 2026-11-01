@@ -9,7 +9,8 @@ const request = axios.create({
 
 request.interceptors.response.use(
   (response) => {
-    if (response.data?.code === 40100) {
+    const skipAuthRedirect = (response.config as { skipAuthRedirect?: boolean }).skipAuthRedirect
+    if (response.data?.code === 40100 && !skipAuthRedirect) {
       message.warning('请先登录')
       const redirect = encodeURIComponent(window.location.pathname + window.location.search)
       if (!window.location.pathname.startsWith('/user/login')) {

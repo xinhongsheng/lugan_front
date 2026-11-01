@@ -4,18 +4,21 @@ import BasicLayout from '@/layout/BasicLayout.vue'
 
 const theme = {
   token: {
-    colorPrimary: '#2f7d46',
-    colorInfo: '#2f7d46',
-    colorLink: '#2f7d46',
-    colorLinkHover: '#4e9a5c',
-    colorTextBase: '#1f2328',
-    colorBgLayout: '#f6f7f3',
-    borderRadius: 10,
+    colorPrimary: '#f7941d',
+    colorInfo: '#1f2b4d',
+    colorLink: '#1f2b4d',
+    colorLinkHover: '#f7941d',
+    colorTextBase: '#1f2b4d',
+    colorBgLayout: '#ffffff',
+    colorBgContainer: '#ffffff',
+    borderRadius: 4,
+    fontSize: 16,
     fontFamily:
-      "'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif",
+      "'Switzer', 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif",
   },
   components: {
-    Card: { borderRadiusLG: 16 },
+    Card: { borderRadiusLG: 4 },
+    Button: { borderRadius: 4, controlHeight: 40 },
   },
 }
 </script>
@@ -26,24 +29,39 @@ const theme = {
   </a-config-provider>
 </template>
 
-<style scoped>
-:global(body) {
-  background: #f6f7f3;
+<style>
+@import './styles/tokens.css';
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
 }
 
-:global(a) {
-  transition: color 0.2s;
+a {
+  transition: color 0.2s var(--ease-out);
 }
 
-/* pro-layout 自带的旧版样式会把主按钮刷回蓝色，这里按品牌色覆盖 */
-:global(.ant-btn-primary:not(:disabled):not(.ant-btn-disabled)) {
-  border-color: #2f7d46;
-  background-color: #2f7d46;
+.ant-btn-primary:not(:disabled):not(.ant-btn-disabled) {
+  border-color: var(--accent);
+  background-color: var(--accent);
+  color: var(--accent-ink);
   box-shadow: none;
+  font-weight: 600;
 }
 
-:global(.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover) {
-  border-color: #4e9a5c;
-  background-color: #4e9a5c;
+.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover {
+  border-color: #e08312;
+  background-color: #e08312;
+  color: var(--accent-ink);
+}
+
+.ant-pro-basicLayout-content {
+  margin: 0 !important;
+}
+
+.ant-layout-content {
+  background: transparent !important;
 }
 </style>

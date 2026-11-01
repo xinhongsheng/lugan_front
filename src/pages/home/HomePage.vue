@@ -1,40 +1,92 @@
 ﻿<script setup lang="ts">
 import { computed, nextTick, onMounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { getHomeVo } from '@/api/homeController'
 import { listProductVoByPage } from '@/api/productController'
-import ProductCard from '@/components/product/ProductCard.vue'
-import { ARTICLE_TYPE_MAP } from '@/constants/article'
-import { HOME_PHOTOS, homePhoto } from '@/constants/home'
+import { listMyCartVoByPage } from '@/api/cartController'
+import { getLoginUser } from '@/api/userController'
+import { HOME_ART } from '@/constants/homeArt'
 
-const FALLBACK_CATEGORIES: API.CategoryVO[] = [
-  {
-    name: '永春芦柑',
-    children: [{ name: '精品果' }, { name: '普通果' }, { name: '礼盒装' }],
-  },
-  { name: '芦柑副产品', children: [{ name: '柑干' }, { name: '柑酱' }] },
-  { name: '其他永春土特产', children: [] },
+type Shelf = {
+  id?: string
+  name: string
+  spec: string
+  price: string
+  sold: string
+  badge?: string
+  cover?: string
+  keyword: string
+}
+
+const router = useRouter()
+
+const CATS = [
+  { name: '精品果（大果/统货）', word: '精品果' },
+  { name: '普通装（日常鲜果）', word: '普通果' },
+  { name: '礼盒装（送礼优选）', word: '礼盒' },
+  { name: '柑干（芦柑果干）', word: '柑干' },
+  { name: '柑酱（芦柑果酱/原料）', word: '柑酱' },
+  { name: '永春土特产（茶叶/蜂蜜/蜜柚）', word: '土特产' },
 ]
 
-const HOT_WORDS = ['精品果', '10 斤装', '礼盒装', '达埔产地', '柑干']
+const NAVS = [
+  { key: 'home', label: '首页', action: 'top' },
+  { key: 'fruit', label: '永春芦柑', action: 'search', word: '永春芦柑' },
+  { key: 'side', label: '芦柑副产品', action: 'search', word: '副产品' },
+  { key: 'local', label: '土特产', action: 'search', word: '土特产' },
+  { key: 'presale', label: '采摘季预售', action: 'anchor', id: 'presale' },
+  { key: 'trace', label: '一果一码验真', action: 'anchor', id: 'trace' },
+  { key: 'group', label: '团购批发', action: 'anchor', id: 'group' },
+  { key: 'news', label: '资讯公告', action: 'anchor', id: 'news' },
+]
 
-const SERVICE_ITEMS = [
-  { title: '产地直发', desc: '达埔、蓬壶果园现采现发' },
-  { title: '坏果包赔', desc: '签收 48 小时内可申请售后' },
-  { title: '批次溯源', desc: '每箱可查采摘批次与质检' },
+const HOT_SHELF: Shelf[] = [
+  { name: '永春芦柑 精选大果', spec: '精品果（约20-26个）', price: '89.00', sold: '3,268', badge: '人气', keyword: '精品果', cover: HOME_ART.bigFruit },
+  { name: '永春芦柑 特级果', spec: '规格：10kg（约40-52个）', price: '168.00', sold: '1,965', keyword: '10斤', cover: HOME_ART.crate },
+  { name: '永春芦柑 礼盒装（送礼优选）', spec: '规格：5kg（精品大果，礼盒装）', price: '128.00', sold: '1,236', badge: '礼盒优选', keyword: '礼盒', cover: HOME_ART.gift },
+  { name: '永春芦柑 家庭实惠装', spec: '规格：10kg（中果）', price: '118.00', sold: '2,973', keyword: '家庭', cover: HOME_ART.crate },
+]
+
+const NEW_SHELF: Shelf[] = [
+  { name: '永春芦柑 新果尝鲜', spec: '5kg/箱', price: '79.00', sold: '', keyword: '新品', cover: HOME_ART.freshBox },
+  { name: '芦柑果干（柑干）', spec: '250g/袋', price: '26.80', sold: '', keyword: '柑干', cover: HOME_ART.dried },
+  { name: '芦柑果酱（柑酱）', spec: '300g/瓶', price: '28.00', sold: '', keyword: '柑酱', cover: HOME_ART.jam },
+  { name: '芦柑蜜饯', spec: '200g/袋', price: '42.80', sold: '', keyword: '蜜饯', cover: HOME_ART.candy },
+  { name: '永春高山茶（芦柑）', spec: '100g/罐', price: '68.00', sold: '', keyword: '高山茶', cover: HOME_ART.tea },
+  { name: '永春农家蜂蜜', spec: '500g/瓶', price: '59.00', sold: '', keyword: '蜂蜜', cover: HOME_ART.honey },
+]
+
+const PICKS: Shelf[] = [
+  { name: '达埔产区 精选大果', spec: '', price: '89.00', sold: '', keyword: '达埔', cover: HOME_ART.bigFruit },
+  { name: '达埔产区 礼盒装', spec: '', price: '128.00', sold: '', keyword: '礼盒', cover: HOME_ART.gift },
+  { name: '达埔产区 家庭装', spec: '', price: '118.00', sold: '', keyword: '达埔', cover: HOME_ART.crate },
+  { name: '蓬壶产区 优选果', spec: '10kg/箱', price: '99.00', sold: '', keyword: '蓬壶', cover: HOME_ART.freshBox },
+]
+
+const NOTICE_FALLBACK = [
+  { title: '关于2025年永春芦柑采摘季预售正式开始的公告', date: '01-10' },
+  { title: '平台发货时效及包装标准说明', date: '01-08' },
+  { title: '永春芦柑一果一码溯源功能升级公告', date: '01-05' },
+  { title: '春节期间发货安排公告', date: '01-02' },
+]
+
+const NEWS_FALLBACK = [
+  { title: '永春芦柑组团丰收季 预计产量再创新高', date: '2025-01-09', summary: '核心产区达埔、蓬壶开秤在即。' },
+  { title: '永春芦柑产业发展新闻：品牌建设持续推进', date: '2025-01-06', summary: '地理标志与助农渠道同步拓展。' },
 ]
 
 const home = ref<API.HomeVO>({})
-const loading = ref(false)
 const searching = ref(false)
 const searched = ref(false)
 const searchResult = ref<API.ProductVO[]>([])
 const searchTotal = ref('0')
-const pickedCategory = ref('')
-const activeTopKey = ref('')
-const activeNoticeTab = ref('notice')
-const activeZone = ref('hot')
+const loginUser = ref<API.UserVO | null>(null)
+const cartCount = ref(0)
+const traceCode = ref('')
+const activeNav = ref('home')
 const resultRef = ref<HTMLElement | null>(null)
+const searchScope = ref('all')
 
 const query = reactive<API.ProductQueryRequest>({
   current: 1,
@@ -42,120 +94,120 @@ const query = reactive<API.ProductQueryRequest>({
   keyword: '',
 })
 
-const slides = computed(() => {
-  const banners = home.value.bannerList ?? []
-  if (banners.length === 0) {
-    return [
-      { id: 'grove', title: '永春芦柑产地宣传', imageUrl: HOME_PHOTOS.grove, linkUrl: '' },
-      { id: 'harvest', title: '芦柑丰收季助农活动', imageUrl: HOME_PHOTOS.harvest, linkUrl: '' },
-      { id: 'poster', title: '产地直供，当日采摘', imageUrl: HOME_PHOTOS.poster, linkUrl: '' },
-    ]
+const heroImage = computed(() => home.value.bannerList?.[0]?.imageUrl || HOME_ART.hero)
+
+function money(product: API.ProductVO) {
+  if (product.price === undefined || product.price === null) {
+    return ''
   }
-  return banners.map((banner, index) => ({
-    id: banner.id ?? `banner-${index}`,
-    title: banner.title ?? '永春芦柑',
-    imageUrl: banner.imageUrl || homePhoto(index),
-    linkUrl: banner.linkUrl ?? '',
+  return Number(product.price).toFixed(2)
+}
+
+function mergeShelf(designed: Shelf[], live: API.ProductVO[]) {
+  return designed.map((item, index) => {
+    const real = live[index]
+    if (!real) {
+      return item
+    }
+    return {
+      ...item,
+      id: real.id,
+      name: real.name || item.name,
+      spec: [real.spec, real.origin].filter(Boolean).join(' · ') || item.spec,
+      price: money(real) || item.price,
+      cover: real.coverUrl || item.cover,
+      sold: item.sold,
+    }
+  })
+}
+
+const hotCards = computed(() => mergeShelf(HOT_SHELF, home.value.hotList ?? []))
+const newCards = computed(() => mergeShelf(NEW_SHELF, home.value.newList ?? []))
+const pickCards = computed(() => mergeShelf(PICKS, home.value.directList ?? []))
+
+const noticeRows = computed(() => {
+  const list = home.value.noticeList ?? []
+  if (list.length === 0) {
+    return NOTICE_FALLBACK
+  }
+  return list.slice(0, 4).map((item, index) => ({
+    title: item.title || NOTICE_FALLBACK[index]?.title || '平台公告',
+    date: NOTICE_FALLBACK[index]?.date || '',
   }))
 })
 
-const topCategories = computed(() => {
-  const list = home.value.categoryList ?? []
-  return list.length > 0 ? list : FALLBACK_CATEGORIES
+const newsRows = computed(() => {
+  const list = home.value.newsList ?? []
+  if (list.length === 0) {
+    return NEWS_FALLBACK
+  }
+  return list.slice(0, 2).map((item, index) => ({
+    title: item.title || NEWS_FALLBACK[index]?.title || '产业资讯',
+    date: NEWS_FALLBACK[index]?.date || '',
+    summary: item.summary || NEWS_FALLBACK[index]?.summary || '',
+  }))
 })
 
-const subCategories = computed(() => {
-  if (activeTopKey.value) {
-    const hit = topCategories.value.find((item) => categoryKey(item) === activeTopKey.value)
-    return hit?.children ?? []
-  }
-  const merged: API.CategoryVO[] = []
-  topCategories.value.forEach((item) => {
-    ;(item.children ?? []).forEach((child) => merged.push(child))
-  })
-  return merged.slice(0, 8)
+const originLead = computed(() => {
+  const first = home.value.originList?.[0]
+  return first?.summary || first?.title || '走进永春芦柑之乡。中国芦柑之乡，地理标志产品。永春芦柑皮薄易剥，汁多化渣，是福建泉州的招牌鲜果。'
 })
 
-const categoryOptions = computed(() =>
-  topCategories.value.map((item) => ({ label: item.name ?? '未命名分类', value: categoryKey(item) })),
-)
-
-const articleTabs = computed(() => [
-  { key: 'notice', title: ARTICLE_TYPE_MAP.notice, list: home.value.noticeList ?? [] },
-  { key: 'news', title: ARTICLE_TYPE_MAP.news, list: home.value.newsList ?? [] },
-  { key: 'origin', title: ARTICLE_TYPE_MAP.origin, list: home.value.originList ?? [] },
-])
-
-const currentArticles = computed(
-  () => articleTabs.value.find((tab) => tab.key === activeNoticeTab.value)?.list ?? [],
-)
-
-const currentArticleTitle = computed(
-  () => articleTabs.value.find((tab) => tab.key === activeNoticeTab.value)?.title ?? '内容',
-)
-
-const zoneTabs = computed(() => [
-  { key: 'hot', label: '热门推荐', hint: '这阵子卖得最多', list: home.value.hotList ?? [] },
-  { key: 'new', label: '新品上架', hint: '刚采下来的一批', list: home.value.newList ?? [] },
-  { key: 'direct', label: '产地直供', hint: '从永春果园直接发出', list: home.value.directList ?? [] },
-])
-
-const zoneOptions = computed(() => zoneTabs.value.map((item) => ({ label: item.label, value: item.key })))
-
-const currentZone = computed(
-  () => zoneTabs.value.find((tab) => tab.key === activeZone.value) ?? zoneTabs.value[0],
-)
-
-const filterText = computed(() => {
-  const parts: string[] = []
-  if (pickedCategory.value) {
-    parts.push(pickedCategory.value)
-  }
-  if (query.minPrice != null || query.maxPrice != null) {
-    parts.push(`¥${query.minPrice ?? 0} — ${query.maxPrice ?? '不限'}`)
-  }
-  return parts.join(' · ')
-})
-
-const resultTitle = computed(() => {
-  if (query.keyword && !pickedCategory.value) {
-    return `“${query.keyword}”的搜索结果`
-  }
-  return pickedCategory.value || '搜索结果'
-})
-
-function categoryKey(category: API.CategoryVO) {
-  return category.id || category.name || ''
-}
-
-function selectCategoryKey(value: unknown) {
-  if (!value) {
-    activeTopKey.value = ''
-    query.categoryId = undefined
-    pickedCategory.value = ''
+function openShelf(item: Shelf) {
+  if (item.id) {
+    router.push({ path: '/product/detail', query: { id: item.id } })
     return
   }
-  const hit = topCategories.value.find((item) => categoryKey(item) === value)
-  if (hit) {
-    activeTopKey.value = categoryKey(hit)
-    applyCategory(hit)
+  quickSearch(item.keyword)
+}
+
+function goAnchor(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+function onNav(item: (typeof NAVS)[number]) {
+  activeNav.value = item.key
+  if (item.action === 'top') {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    resetSearch()
+    return
+  }
+  if (item.action === 'anchor' && item.id) {
+    goAnchor(item.id)
+    return
+  }
+  if (item.word) {
+    quickSearch(item.word)
   }
 }
 
 async function loadHome() {
-  loading.value = true
   try {
     const response = await getHomeVo()
-    const body = response.data
-    if (body.code !== 0 || !body.data) {
-      message.error(body.message || '首页加载失败')
-      return
+    if (response.data.code === 0 && response.data.data) {
+      home.value = response.data.data
     }
-    home.value = body.data
   } catch {
     message.error('首页加载失败')
-  } finally {
-    loading.value = false
+  }
+}
+
+async function loadSession() {
+  try {
+    const response = await getLoginUser({ skipAuthRedirect: true })
+    loginUser.value = response.data.code === 0 ? response.data.data ?? null : null
+  } catch {
+    loginUser.value = null
+  }
+  if (!loginUser.value) {
+    cartCount.value = 0
+    return
+  }
+  try {
+    const response = await listMyCartVoByPage({ current: 1, pageSize: 50 }, { skipAuthRedirect: true })
+    cartCount.value = response.data.code === 0 ? (response.data.data?.list ?? []).length : 0
+  } catch {
+    cartCount.value = 0
   }
 }
 
@@ -177,7 +229,7 @@ async function search(resetPage = true) {
     searchResult.value = body.data.list ?? []
     searchTotal.value = body.data.total ?? '0'
     if (resetPage) {
-      scoreToResult()
+      nextTick(() => resultRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
     }
   } catch {
     message.error('搜索失败')
@@ -186,38 +238,9 @@ async function search(resetPage = true) {
   }
 }
 
-function scoreToResult() {
-  nextTick(() => {
-    resultRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  })
-}
-
-function applyCategory(category: API.CategoryVO) {
-  query.categoryId = category.id || undefined
-  query.keyword = category.id ? '' : category.name ?? ''
-  pickedCategory.value = category.name ?? ''
-  search(true)
-}
-
-function pickTop(category: API.CategoryVO) {
-  activeTopKey.value = categoryKey(category)
-  applyCategory(category)
-}
-
-function pickAll() {
-  activeTopKey.value = ''
-  query.categoryId = undefined
-  pickedCategory.value = ''
-  if (searched.value) {
-    resetSearch()
-  }
-}
-
 function quickSearch(word: string) {
   query.keyword = word
   query.categoryId = undefined
-  pickedCategory.value = ''
-  activeTopKey.value = ''
   search(true)
 }
 
@@ -230,138 +253,156 @@ function resetSearch() {
   searched.value = false
   searchResult.value = []
   searchTotal.value = '0'
-  pickedCategory.value = ''
-  activeTopKey.value = ''
   query.keyword = ''
   query.categoryId = undefined
-  query.minPrice = undefined
-  query.maxPrice = undefined
   query.current = 1
 }
 
-onMounted(loadHome)
+function askTrace() {
+  const code = traceCode.value.trim()
+  if (!code) {
+    message.warning('请输入 16 位溯源码')
+    return
+  }
+  message.info('公开验真即将开放。示例码 YC202501000011 可先在商品详情查看采摘批次。')
+}
+
+function resultShelf(product: API.ProductVO, index: number): Shelf {
+  return {
+    id: product.id,
+    name: product.name || '永春芦柑',
+    spec: [product.spec, product.origin].filter(Boolean).join(' · '),
+    price: money(product) || '待定',
+    sold: '',
+    cover: product.coverUrl || HOME_ART.bigFruit,
+    keyword: product.name || '芦柑',
+  }
+}
+
+onMounted(() => {
+  loadHome()
+  loadSession()
+})
 </script>
 
 <template>
   <div id="home-page">
-    <div class="wrap">
-      <!-- 搜索 + 分类：同一区块 -->
+    <div class="welcome">
+      <div class="rail welcome-inner">
+        <span>欢迎来到 泉州永春芦柑营销平台　|　原产地直供 · 产地溯源 · 助农兴农</span>
+        <nav class="welcome-links">
+          <router-link v-if="!loginUser" to="/user/login">登录 / 注册</router-link>
+          <router-link v-else to="/user/profile">{{ loginUser.userName || loginUser.userAccount }}</router-link>
+          <router-link to="/user/profile">个人中心</router-link>
+          <router-link to="/user/login">商家中心</router-link>
+          <router-link to="/user/profile">我的订单</router-link>
+          <a href="mailto:service@yongchun-lugan.com">客服咨询</a>
+        </nav>
+      </div>
+    </div>
+
+    <header class="mast">
+      <div class="rail mast-inner">
+        <router-link to="/" class="brand" @click="resetSearch">
+          <img class="brand-mark" :src="HOME_ART.logo" alt="" />
+          <span>
+            <strong>泉州永春芦柑营销平台</strong>
+            <small>永春芦柑 · 产地直供 · 助农兴农</small>
+          </span>
+        </router-link>
+        <form class="search" @submit.prevent="search(true)">
+          <select v-model="searchScope" aria-label="搜索范围">
+            <option value="all">搜索商品、分类、产地</option>
+            <option value="goods">商品</option>
+            <option value="cate">分类</option>
+            <option value="origin">产地</option>
+          </select>
+          <input v-model="query.keyword" type="search" placeholder="永春芦柑、芦柑礼盒、永春土特产" />
+          <button type="submit">搜索</button>
+        </form>
+        <router-link to="/cart" class="cart-entry">
+          <span class="cart-icon" aria-hidden="true" />
+          购物车 ({{ cartCount }})
+        </router-link>
+      </div>
+    </header>
+
+    <nav class="main-nav">
+      <div class="rail">
+        <button
+          v-for="item in NAVS"
+          :key="item.key"
+          type="button"
+          :class="{ active: activeNav === item.key }"
+          @click="onNav(item)"
+        >
+          {{ item.label }}
+        </button>
+      </div>
+    </nav>
+
+    <main class="rail body">
       <section class="hero">
-        <div class="hero-body">
-          <div class="hero-left">
-            <span class="hero-tag">永春 · 中国芦柑之乡</span>
-            <h1 class="hero-title">从达埔果园，直发一箱新鲜芦柑</h1>
-            <p class="hero-sub">当季采摘 · 采摘批次可溯源 · 省内次日达</p>
-
-          <div class="search-bar">
-            <a-select
-              class="search-cat"
-              :value="activeTopKey || undefined"
-              :options="categoryOptions"
-              :bordered="false"
-              placeholder="全部分类"
-              allow-clear
-              @change="selectCategoryKey"
-            />
-            <span class="search-split" />
-            <a-input
-              v-model:value="query.keyword"
-              class="search-input"
-              :bordered="false"
-              allow-clear
-              placeholder="搜一搜：品名、规格或产地，如「精品果」「10 斤装」"
-              @press-enter="search(true)"
-            />
-            <a-button type="primary" class="search-btn" :loading="searching" @click="search(true)">
-              搜索
-            </a-button>
+        <aside class="cats">
+          <h2><i aria-hidden="true" />全部商品分类</h2>
+          <button v-for="item in CATS" :key="item.name" type="button" @click="quickSearch(item.word)">
+            <span class="dot" />{{ item.name }}
+          </button>
+        </aside>
+        <div class="banner" :style="{ backgroundImage: `url(${heroImage})` }">
+          <div class="banner-copy">
+            <h1>泉州永春芦柑<br />产地直供 · 丰收季</h1>
+            <p class="banner-chip">丰收助农 · 新鲜上市</p>
+            <ul class="traits">
+              <li>永春原产</li>
+              <li>汁多香浓</li>
+              <li>皮薄易剥</li>
+              <li>果香化渣</li>
+            </ul>
           </div>
-
-          <div class="search-extra">
-            <div class="hot-words">
-              <span class="extra-label">大家在搜</span>
-              <a v-for="word in HOT_WORDS" :key="word" class="hot-word" @click="quickSearch(word)">
-                {{ word }}
-              </a>
-            </div>
-            <div class="price-range">
-              <span class="extra-label">价格</span>
-              <a-input-number
-                v-model:value="query.minPrice"
-                :min="0"
-                :precision="0"
-                :controls="false"
-                placeholder="最低"
-                size="small"
-              />
-              <span class="dash">—</span>
-              <a-input-number
-                v-model:value="query.maxPrice"
-                :min="0"
-                :precision="0"
-                :controls="false"
-                placeholder="最高"
-                size="small"
-              />
-              <span class="extra-label unit-label">元</span>
-            </div>
-          </div>
-          </div>
-
-          <div class="hero-visual" :style="{ backgroundImage: `url(${HOME_PHOTOS.harvest})` }">
-            <div class="visual-caption">
-              <span class="visual-tag">产地直采</span>
-              <p>永春达埔 · 蓬壶果园现采现发</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="hero-foot">
-          <div class="cat-row">
-            <a class="cat-chip" :class="{ active: !activeTopKey }" @click="pickAll">全部</a>
-            <a
-              v-for="category in topCategories"
-              :key="categoryKey(category)"
-              class="cat-chip"
-              :class="{ active: activeTopKey === categoryKey(category) }"
-              @click="pickTop(category)"
-            >
-              {{ category.name }}
-            </a>
-          </div>
-
-          <div v-if="subCategories.length" class="sub-row">
-            <a
-              v-for="child in subCategories"
-              :key="categoryKey(child)"
-              class="sub-chip"
-              @click="applyCategory(child)"
-            >
-              {{ child.name }}
-            </a>
-          </div>
+          <button type="button" class="core-tag" @click="quickSearch('达埔')">核心产区</button>
         </div>
       </section>
 
-      <!-- 搜索结果 -->
-      <section v-if="searched" ref="resultRef" class="panel result">
-        <header class="panel-head">
-          <div class="head-left">
-            <h2 class="panel-title">{{ resultTitle }}</h2>
-            <span class="head-count">共 {{ searchTotal }} 件</span>
-            <span v-if="filterText" class="head-filter">{{ filterText }}</span>
-          </div>
-          <a-button type="link" class="head-action" @click="resetSearch">清空筛选</a-button>
+      <section class="services">
+        <button type="button" @click="goAnchor('trace')">
+          <b>一果一码溯源验真</b>
+          <em>防伪验真</em>
+          <span>扫码验真伪、批次、质检等全程信息</span>
+        </button>
+        <button type="button" @click="goAnchor('presale')">
+          <b>采摘季预售</b>
+          <em>平台首创</em>
+          <span>果园直采 · 提前锁鲜 · 限时优惠</span>
+        </button>
+        <button type="button" @click="goAnchor('direct')">
+          <b>芦柑产地直发</b>
+          <span>永春产地 · 新鲜直达</span>
+        </button>
+        <button type="button" @click="goAnchor('hot')">
+          <b>品质保障</b>
+          <span>严格筛选 · 坏果包赔</span>
+        </button>
+      </section>
+
+      <section v-if="searched" id="result" ref="resultRef" class="block">
+        <header class="block-head">
+          <h2>搜索结果</h2>
+          <p>共 {{ searchTotal }} 件</p>
+          <button type="button" class="more" @click="resetSearch">清空</button>
         </header>
         <a-spin :spinning="searching">
-          <a-empty v-if="searchResult.length === 0" class="empty" description="没有找到符合条件的产品，换个关键词试试" />
-          <div v-else class="grid">
-            <product-card
-              v-for="(product, index) in searchResult"
-              :key="product.id ?? index"
-              :product="product"
-              :index="index"
-            />
+          <a-empty v-if="searchResult.length === 0" description="没有找到符合条件的芦柑" />
+          <div v-else class="goods goods-4">
+            <article v-for="(product, index) in searchResult" :key="product.id ?? index" class="card">
+              <button type="button" class="hit" @click="openShelf(resultShelf(product, index))">
+                <span class="thumb" :style="{ backgroundImage: `url(${product.coverUrl || HOME_ART.bigFruit})` }" />
+                <h3>{{ product.name || '永春芦柑' }}</h3>
+                <p>{{ [product.spec, product.origin].filter(Boolean).join(' · ') }}</p>
+                <strong>¥{{ money(product) || '待定' }}</strong>
+              </button>
+              <button type="button" class="add" @click="openShelf(resultShelf(product, index))">加入购物车</button>
+            </article>
           </div>
           <div v-if="Number(searchTotal) > Number(query.pageSize)" class="pager">
             <a-pagination
@@ -375,649 +416,1053 @@ onMounted(loadHome)
         </a-spin>
       </section>
 
-      <!-- 轮播 + 公告 -->
-      <div class="main-row">
-        <section class="panel gallery">
-          <a-carousel autoplay class="banner">
-            <div v-for="slide in slides" :key="slide.id">
-              <a
-                v-if="slide.linkUrl"
-                class="slide"
-                :href="slide.linkUrl"
-                :style="{ backgroundImage: `url(${slide.imageUrl})` }"
-              >
-                <span class="slide-title">{{ slide.title }}</span>
-              </a>
-              <div v-else class="slide" :style="{ backgroundImage: `url(${slide.imageUrl})` }">
-                <span class="slide-title">{{ slide.title }}</span>
-              </div>
-            </div>
-          </a-carousel>
-        </section>
-
-        <section class="panel notice">
-          <a-tabs v-model:activeKey="activeNoticeTab" size="small" class="notice-tabs">
-            <a-tab-pane v-for="tab in articleTabs" :key="tab.key" :tab="tab.title" />
-          </a-tabs>
-          <div class="notice-list">
-            <a-empty v-if="currentArticles.length === 0" :image="false" description="内容整理中" />
-            <a v-for="(article, index) in currentArticles" :key="article.id ?? index" class="notice-item">
-              <span class="dot" :class="activeNoticeTab" />
-              <span class="notice-title">{{ article.title }}</span>
-              <span v-if="index === 0" class="new-flag">NEW</span>
-            </a>
-          </div>
-          <a class="notice-more">查看全部{{ currentArticleTitle }} →</a>
-        </section>
-      </div>
-
-      <!-- 商品专区 -->
-      <section class="panel zone">
-        <header class="panel-head">
-          <div class="head-left">
-            <h2 class="panel-title">{{ currentZone.label }}</h2>
-            <span class="head-count">{{ currentZone.hint }}</span>
-          </div>
-          <a-segmented v-model:value="activeZone" :options="zoneOptions" />
+      <section id="hot" class="block">
+        <header class="block-head">
+          <h2>热门芦柑推荐</h2>
+          <em class="flag">人气热卖</em>
+          <p>永春核心产区直供，当季新鲜，香甜多汁</p>
+          <button type="button" class="more" @click="quickSearch('精品果')">查看更多</button>
         </header>
-        <a-spin :spinning="loading">
-          <a-empty v-if="currentZone.list.length === 0" class="empty" :image="false" description="这个专区还没有上架的芦柑" />
-          <div v-else class="grid">
-            <product-card
-              v-for="(product, index) in currentZone.list.slice(0, 8)"
-              :key="product.id ?? index"
-              :product="product"
-              :index="index"
-            />
-          </div>
-        </a-spin>
-      </section>
-
-      <!-- 服务保障 -->
-      <section class="service">
-        <div v-for="item in SERVICE_ITEMS" :key="item.title" class="service-item">
-          <h4>{{ item.title }}</h4>
-          <p>{{ item.desc }}</p>
+        <div class="goods goods-4">
+          <article v-for="item in hotCards" :key="item.name" class="card">
+            <button type="button" class="hit" @click="openShelf(item)">
+              <span class="thumb" :style="item.cover ? { backgroundImage: `url(${item.cover})` } : undefined">
+                <i v-if="item.badge" class="badge">{{ item.badge }}</i>
+              </span>
+              <h3>{{ item.name }}</h3>
+              <p>{{ item.spec }}</p>
+              <div class="price-row">
+                <strong>¥{{ item.price }}</strong>
+                <span v-if="item.sold">已售 {{ item.sold }} 件</span>
+              </div>
+            </button>
+            <button type="button" class="add" @click="openShelf(item)">加入购物车</button>
+          </article>
         </div>
       </section>
-    </div>
+
+      <section id="fresh" class="block">
+        <header class="block-head">
+          <h2>新品上架</h2>
+          <p>新鲜上市 · 特色产品 · 值得尝鲜</p>
+          <button type="button" class="more" @click="quickSearch('新品')">查看更多</button>
+        </header>
+        <div class="goods goods-6">
+          <article v-for="item in newCards" :key="item.name" class="card compact">
+            <button type="button" class="hit" @click="openShelf(item)">
+              <span class="thumb" :style="item.cover ? { backgroundImage: `url(${item.cover})` } : undefined" />
+              <h3>{{ item.name }}</h3>
+              <p>{{ item.spec }}</p>
+              <strong>¥{{ item.price }}</strong>
+            </button>
+          </article>
+        </div>
+      </section>
+
+      <section id="direct" class="block">
+        <header class="block-head">
+          <h2>产地直供专区</h2>
+          <p>永春核心产区 · 果园直发 · 产地地道风味</p>
+          <button type="button" class="more" @click="quickSearch('达埔')">查看更多产地</button>
+        </header>
+        <div class="zones">
+          <article class="zone">
+            <span class="zone-photo" :style="{ backgroundImage: `url(${HOME_ART.dapu})` }" />
+            <div>
+              <h3>永春达埔产区</h3>
+              <p>核心产区，果园直供，日照充足，糖酸比高，品质上乘。</p>
+              <button type="button" @click="quickSearch('达埔')">进入该产区专区</button>
+            </div>
+          </article>
+          <article class="picks">
+            <h3>推荐产品</h3>
+            <button v-for="item in pickCards" :key="item.name" type="button" class="pick" @click="openShelf(item)">
+              <span class="mini" :style="item.cover ? { backgroundImage: `url(${item.cover})` } : undefined" />
+              <span>
+                <strong>{{ item.name }}</strong>
+                <em>¥{{ item.price }}</em>
+                <small v-if="item.spec">{{ item.spec }}</small>
+              </span>
+            </button>
+          </article>
+          <article class="zone">
+            <span class="zone-photo" :style="{ backgroundImage: `url(${HOME_ART.penghu})` }" />
+            <div>
+              <h3>蓬壶产区</h3>
+              <p>山地生态种植，果肉饱满，风味清甜。</p>
+              <button type="button" @click="quickSearch('蓬壶')">进入蓬壶专区</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="news" class="news-row">
+        <article>
+          <header>
+            <h2>平台公告</h2>
+            <button type="button" class="more">更多</button>
+          </header>
+          <ul>
+            <li v-for="item in noticeRows" :key="item.title">
+              <span>{{ item.title }}</span>
+              <time>{{ item.date }}</time>
+            </li>
+          </ul>
+        </article>
+        <article>
+          <header>
+            <h2>永春芦柑产业资讯</h2>
+            <button type="button" class="more">更多</button>
+          </header>
+          <div v-for="item in newsRows" :key="item.title" class="story">
+            <span class="mini" :style="{ backgroundImage: `url(${HOME_ART.news})` }" />
+            <div>
+              <strong>{{ item.title }}</strong>
+              <time>{{ item.date }}</time>
+              <p>{{ item.summary }}</p>
+            </div>
+          </div>
+        </article>
+        <article>
+          <header>
+            <h2>产地介绍</h2>
+            <button type="button" class="more">更多</button>
+          </header>
+          <div class="story">
+            <span class="mini tall" :style="{ backgroundImage: `url(${HOME_ART.origin})` }" />
+            <p class="origin-copy">{{ originLead }}</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="split">
+        <article id="presale" class="panel">
+          <header class="block-head">
+            <h2>采摘季预售</h2>
+            <p>果园直采 · 提前锁鲜 · 锁定当季好芦柑</p>
+          </header>
+          <div class="presale">
+            <span class="thumb gift" :style="{ backgroundImage: `url(${HOME_ART.gift})` }" />
+            <dl>
+              <div><dt>预售产品</dt><dd>永春芦柑 · 核心产区礼盒</dd></div>
+              <div><dt>预售开放</dt><dd>2025年01月15日</dd></div>
+              <div><dt>预计发货</dt><dd>2025年01月15日起（分批发送）</dd></div>
+              <div><dt>定金比例</dt><dd>20%（定金不抵尾款）</dd></div>
+              <div><dt>尾款截止</dt><dd>2025年01月31日 24:00</dd></div>
+              <div><dt>剩余数量</dt><dd>3,200 箱（已预订 1,800 套）</dd></div>
+            </dl>
+          </div>
+          <button type="button" class="solid" @click="quickSearch('礼盒')">立即预订</button>
+        </article>
+        <article id="trace" class="panel">
+          <header class="block-head">
+            <h2>一果一码溯源验真</h2>
+            <p>扫码或输入 16 位溯源码，查看采摘、质检、入库、出库</p>
+          </header>
+          <p class="sample">示例：YC202501000011</p>
+          <form class="trace-form" @submit.prevent="askTrace">
+            <input v-model="traceCode" maxlength="32" placeholder="请输入 16 位溯源码" />
+            <button type="submit">查询</button>
+          </form>
+          <ol class="flow">
+            <li>采摘</li>
+            <li>质检</li>
+            <li>入库</li>
+            <li>出库</li>
+          </ol>
+        </article>
+      </section>
+
+      <section id="group" class="group">
+        <div>
+          <h2>团购批发 / 企业采购</h2>
+          <p>面向水果店、学校、工会与商超等渠道订购，批发及定制礼盒服务。</p>
+        </div>
+        <img class="group-fruit" :src="HOME_ART.pile" alt="" />
+        <ul>
+          <li>大单采购 · 价格更优</li>
+          <li>要求大货可谈</li>
+          <li>专属客服 · 一单一跟</li>
+        </ul>
+        <button type="button" @click="quickSearch('10斤')">立即咨询团购</button>
+      </section>
+
+      <section class="promises">
+        <article><b>产地直发</b><span>永春果园，新鲜到家</span></article>
+        <article><b>正品保障</b><span>地理标志，源头可查</span></article>
+        <article><b>贴心服务</b><span>在线客服，快速响应</span></article>
+        <article><b>售后无忧</b><span>坏果包赔，放心购买</span></article>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div class="rail foot-grid">
+        <div>
+          <strong>泉州永春芦柑营销平台</strong>
+          <p>永春芦柑 · 产地直供 · 助农兴农</p>
+        </div>
+        <div>
+          <strong>帮助中心</strong>
+          <p>购物指南</p>
+          <p>支付方式</p>
+          <p>配送说明</p>
+          <p>售后服务</p>
+        </div>
+        <div>
+          <strong>商家入驻</strong>
+          <p>商家入驻流程</p>
+          <p>入驻条件说明</p>
+          <p>商家管理规则</p>
+        </div>
+        <div>
+          <strong>关于我们</strong>
+          <p>平台介绍</p>
+          <p>品牌故事</p>
+          <p>联系方式</p>
+        </div>
+        <div>
+          <strong>联系我们</strong>
+          <p>客服热线：0595-0000000（8:30–18:00）</p>
+          <p>客服邮箱：service@yongchun-lugan.com</p>
+          <p>平台地址：福建省泉州市永春县（芦柑产业园区）</p>
+        </div>
+      </div>
+      <p class="copy">© 2025 泉州永春芦柑营销平台　版权所有　|　闽ICP备00000000号</p>
+    </footer>
   </div>
 </template>
 
 <style scoped>
 #home-page {
-  box-sizing: border-box;
-  width: 100%;
-  padding: 20px 24px 48px;
-  overflow-x: hidden;
-  background: #f6f7f3;
+  --mall: #f39800;
+  --mall-deep: #e8870a;
+  --price: #ff4d00;
+  --ink: #333;
+  --muted: #999;
+  --line: #f0f0f0;
+  min-height: 100vh;
+  color: var(--ink);
+  background: #f5f5f5;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
-.wrap {
-  width: 100%;
-  max-width: 1200px;
+.rail {
   box-sizing: border-box;
+  width: min(1200px, calc(100% - 24px));
   margin: 0 auto;
 }
 
-/* ---------- Hero ---------- */
-.hero {
-  position: relative;
-  overflow: hidden;
-  border-radius: 20px;
-  background: radial-gradient(120% 140% at 88% 8%, #4e9a5c 0%, #2f7d46 46%, #1c5a34 100%);
-}
-
-.hero-body {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 32px;
-  align-items: center;
-  padding: 32px 36px 8px;
-}
-
-.hero-left {
-  min-width: 0;
-}
-
-.hero-visual {
-  position: relative;
-  height: 236px;
-  border-radius: 16px;
-  background-position: center;
-  background-size: cover;
-  box-shadow: 0 12px 28px rgba(6, 32, 16, 0.28);
-}
-
-.visual-caption {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  padding: 36px 16px 12px;
-  border-radius: 0 0 16px 16px;
-  background: linear-gradient(180deg, transparent, rgba(8, 30, 16, 0.72));
-}
-
-.visual-tag {
-  display: inline-block;
-  padding: 1px 8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #1f6b3a;
-  font-size: 11.5px;
-  line-height: 18px;
-}
-
-.visual-caption p {
-  margin: 6px 0 0;
-  color: rgba(255, 255, 255, 0.92);
-  font-size: 12.5px;
-}
-
-.hero-foot {
-  position: relative;
-  padding: 0 36px 26px;
-}
-
-.hero-tag {
-  display: inline-block;
-  padding: 2px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  border-radius: 999px;
-  color: #eaf5e6;
-  font-size: 12px;
-  letter-spacing: 0.5px;
-}
-
-.hero-title {
-  margin: 12px 0 6px;
-  color: #fff;
-  font-size: 30px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-.hero-sub {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 13.5px;
-}
-
-.search-bar {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  max-width: 100%;
-  margin-top: 22px;
-  padding: 5px 6px 5px 10px;
+.welcome {
   background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 8px 24px rgba(12, 45, 24, 0.18);
+  border-bottom: 1px solid #f2f2f2;
+  color: #999;
+  font-size: 12px;
 }
 
-.search-cat {
-  width: 116px;
-}
-
-.search-cat :deep(.ant-select-selector) {
-  padding-left: 2px;
-  color: #3c4450;
-}
-
-.search-split {
-  width: 1px;
-  height: 20px;
-  background: #e8ebe4;
-}
-
-.search-input {
-  flex: 1;
-  min-width: 0;
-  font-size: 14px;
-}
-
-.search-btn {
-  height: 40px;
-  padding: 0 26px;
-  border-radius: 10px;
-  font-size: 15px;
-}
-
-.search-extra {
+.welcome-inner,
+.mast-inner {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  max-width: 100%;
-  margin-top: 12px;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 13px;
+  gap: 16px;
+  min-height: 34px;
 }
 
-.hot-words {
+.welcome-links {
   display: flex;
-  flex-wrap: wrap;
+  gap: 14px;
+  white-space: nowrap;
+}
+
+.welcome-links a {
+  color: #666;
+}
+
+.mast {
+  background: #fff;
+  padding: 16px 0 12px;
+}
+
+.brand {
+  display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.extra-label {
-  color: rgba(255, 255, 255, 0.62);
-  font-size: 12.5px;
-}
-
-.hot-word {
-  color: #eaf5e6;
+  min-width: 280px;
+  color: var(--mall-deep);
   text-decoration: none;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.35);
 }
 
-.hot-word:hover {
+.brand strong {
+  display: block;
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.brand small {
+  color: #b0b0b0;
+  font-size: 12px;
+}
+
+.brand-mark {
+  width: 46px;
+  height: 46px;
+  display: block;
+}
+
+.search {
+  display: flex;
+  flex: 1;
+  max-width: 620px;
+  height: 40px;
+  overflow: hidden;
+  border: 2px solid var(--mall);
+  border-radius: 20px;
+  background: #fff;
+}
+
+.search select,
+.search input {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.search select {
+  width: 168px;
+  padding-left: 14px;
+  color: #888;
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+}
+
+.search button {
+  width: 86px;
+  border: 0;
+  background: var(--mall);
   color: #fff;
-  border-bottom-color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.price-range {
+.cart-entry {
   display: flex;
   align-items: center;
   gap: 6px;
+  color: var(--mall-deep);
+  text-decoration: none;
+  white-space: nowrap;
+  font-size: 14px;
 }
 
-.price-range :deep(.ant-input-number) {
-  width: 64px;
-  border-color: transparent;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.92);
+.cart-icon {
+  width: 18px;
+  height: 14px;
+  border: 2px solid var(--mall-deep);
+  border-top: 0;
+  border-radius: 0 0 3px 3px;
+  position: relative;
 }
 
-.price-range :deep(.ant-input-number input) {
-  font-size: 12px;
-  text-align: center;
+.cart-icon::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: -7px;
+  width: 8px;
+  height: 6px;
+  border: 2px solid var(--mall-deep);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
 }
 
-.dash {
-  color: rgba(255, 255, 255, 0.55);
+.main-nav {
+  background: var(--mall);
 }
 
-.unit-label {
-  margin-left: -2px;
-}
-
-.cat-row {
+.main-nav .rail {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 14px;
+  min-height: 44px;
+  overflow-x: auto;
 }
 
-.cat-chip {
-  padding: 5px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: 999px;
-  color: #f1f8ee;
-  font-size: 13.5px;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
-}
-
-.cat-chip:hover {
-  background: rgba(255, 255, 255, 0.16);
-}
-
-.cat-chip.active {
-  border-color: #fff;
-  background: #fff;
-  color: #1f6b3a;
-  font-weight: 600;
-}
-
-.sub-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed rgba(255, 255, 255, 0.2);
-}
-
-.sub-chip {
-  padding: 3px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  color: #eaf5e6;
-  font-size: 12.5px;
-}
-
-.sub-chip:hover {
-  background: rgba(255, 255, 255, 0.26);
+.main-nav button {
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
   color: #fff;
+  padding: 0 22px;
+  font: inherit;
+  font-size: 15px;
+  white-space: nowrap;
+  cursor: pointer;
 }
 
-/* ---------- 通用面板 ---------- */
-.panel {
-  padding: 18px 20px;
-  background: #fff;
-  border: 1px solid #eef0e9;
-  border-radius: 16px;
+.main-nav button.active {
+  background: var(--mall-deep);
 }
 
+.body {
+  padding: 14px 0 24px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 12px;
+  min-height: 340px;
+}
+
+.cats,
+.card,
 .panel,
-.main-row,
-.service {
-  margin-top: 16px;
+.zone,
+.picks,
+.news-row article,
+.services button,
+.promises {
+  background: #fff;
+  border-radius: 8px;
 }
 
-.main-row .panel {
-  margin-top: 0;
+.cats h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 8px 8px 0 0;
+  background: var(--mall);
+  color: #fff;
+  font-size: 15px;
 }
 
-.panel-head {
+.cats h2 i {
+  width: 14px;
+  height: 2px;
+  background: #fff;
+  box-shadow: 0 4px 0 #fff, 0 8px 0 #fff;
+}
+
+.cats button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 14px;
+  border: 0;
+  background: #fff;
+  color: #444;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cats button:hover {
+  background: #fff8ee;
+  color: var(--mall-deep);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mall);
+  flex: none;
+}
+
+.banner {
+  position: relative;
+  overflow: hidden;
+  min-height: 340px;
+  border-radius: 8px;
+  background: #fff6e4 center / cover no-repeat;
+}
+
+.banner-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 460px;
+  padding: 42px 36px;
+}
+
+.banner-copy h1 {
+  margin: 0 0 14px;
+  color: #e25b00;
+  font-size: 40px;
+  line-height: 1.2;
+}
+
+.banner-chip {
+  display: inline-block;
+  margin: 0 0 18px;
+  padding: 4px 14px;
+  border-radius: 14px;
+  background: #fff;
+  color: var(--mall-deep);
+  font-size: 13px;
+}
+
+.traits {
+  display: grid;
+  grid-template-columns: 120px 120px;
+  gap: 10px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #c2410c;
+  font-size: 15px;
+}
+
+.core-tag {
+  position: absolute;
+  right: 28px;
+  bottom: 36px;
+  z-index: 1;
+  border: 0;
+  border-radius: 4px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--mall-deep);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.services {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.services button {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 6px 8px;
+  padding: 16px 14px;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
 }
 
-.head-left {
+.services b {
+  font-size: 15px;
+}
+
+.services em {
+  padding: 0 6px;
+  border-radius: 8px;
+  background: #fff1df;
+  color: var(--mall-deep);
+  font-style: normal;
+  font-size: 12px;
+}
+
+.services span,
+.block-head p,
+.card p,
+.zone p,
+.story p {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.services span {
+  flex: 1 0 100%;
+}
+
+.block {
+  margin-top: 16px;
+}
+
+.block-head,
+.news-row header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 10px;
+  margin-bottom: 12px;
 }
 
-.panel-title {
-  position: relative;
+.block-head h2,
+.news-row h2,
+.group h2 {
   margin: 0;
-  padding-left: 12px;
-  color: #1f2328;
   font-size: 18px;
-  font-weight: 600;
 }
 
-.panel-title::before {
-  position: absolute;
-  top: 50%;
-  left: 0;
+.block-head h2::before,
+.news-row h2::before {
+  content: '';
+  display: inline-block;
   width: 4px;
   height: 16px;
+  margin-right: 8px;
   border-radius: 2px;
-  background: #2f7d46;
-  content: '';
-  transform: translateY(-50%);
+  background: var(--mall);
+  vertical-align: -2px;
 }
 
-.head-count,
-.head-filter {
-  color: #8a9099;
-  font-size: 13px;
+.block-head p {
+  margin: 0;
 }
 
-.head-filter {
+.flag {
   padding: 1px 8px;
-  border-radius: 6px;
-  background: #f2f5ee;
-  color: #43764f;
+  border-radius: 10px;
+  background: #ffefe0;
+  color: var(--price);
+  font-style: normal;
+  font-size: 12px;
 }
 
-.head-action {
-  padding: 0;
-}
-
-.empty {
-  padding: 22px 0 26px;
-}
-
-.empty :deep(.ant-empty-image) {
-  height: 46px;
-  opacity: 0.8;
-}
-
-.empty :deep(.ant-empty-description) {
-  color: #9aa0a8;
+.more {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: #aaa;
+  font: inherit;
   font-size: 13px;
+  cursor: pointer;
 }
 
-.grid {
+.goods-4 {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
+  gap: 12px;
+}
+
+.goods-6 {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.card {
+  padding: 10px;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.hit {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.thumb,
+.zone-photo,
+.mini {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1.45;
+  border-radius: 6px;
+  background: #ececec center / cover no-repeat;
+  position: relative;
+}
+
+.badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 1;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--mall);
+  color: #fff;
+  font-style: normal;
+  font-size: 12px;
+}
+
+.card h3,
+.pick strong {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.price-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.card strong,
+.pick em {
+  color: var(--price);
+  font-style: normal;
+  font-size: 18px;
+}
+
+.price-row span,
+.pick small {
+  color: #bbb;
+  font-size: 12px;
+}
+
+.add,
+.zone button,
+.solid,
+.group > button,
+.trace-form button {
+  border: 0;
+  background: var(--mall);
+  color: #fff;
+  cursor: pointer;
+}
+
+.add {
+  width: 100%;
+  height: 32px;
+  margin-top: 8px;
+  border-radius: 16px;
+  font-size: 13px;
 }
 
 .pager {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
-}
-
-/* ---------- 搜索结果 ---------- */
-.result {
-  border-color: #dcead7;
-  box-shadow: 0 8px 22px rgba(31, 92, 53, 0.06);
-}
-
-/* ---------- 轮播 + 公告 ---------- */
-.main-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr);
-  gap: 16px;
   margin-top: 16px;
 }
 
-.gallery,
-.notice {
-  margin-top: 0;
+.zones {
+  display: grid;
+  grid-template-columns: 1.15fr 0.9fr 1.15fr;
+  gap: 12px;
 }
 
-.gallery {
-  padding: 0;
-  overflow: hidden;
+.zone,
+.picks {
+  padding: 14px;
 }
 
-.banner :deep(.slick-slide) > div {
-  line-height: 0;
+.zone {
+  display: grid;
+  grid-template-columns: 116px 1fr;
+  gap: 12px;
 }
 
-.slide {
-  display: flex;
-  align-items: flex-end;
-  height: 336px;
-  background-position: center;
+.zone-photo {
+  width: 116px;
+  height: 116px;
+  aspect-ratio: auto;
+}
+
+.zone-photo {
   background-size: cover;
+}
+
+.zone h3,
+.picks h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+.zone p {
+  margin: 0 0 10px;
   line-height: 1.5;
-  text-decoration: none;
 }
 
-.slide-title {
-  width: 100%;
-  padding: 40px 24px 20px;
-  background: linear-gradient(180deg, transparent, rgba(10, 32, 18, 0.68));
-  color: #fff;
-  font-size: 20px;
-  font-weight: 600;
+.zone button {
+  padding: 5px 12px;
+  border-radius: 14px;
+  font-size: 12px;
 }
 
-.notice {
-  display: flex;
-  flex-direction: column;
-  height: 336px;
-  box-sizing: border-box;
-}
-
-.notice-tabs :deep(.ant-tabs-nav) {
-  margin-bottom: 8px;
-}
-
-.notice-list {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.notice-item {
+.pick {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 2px;
-  color: #3c4450;
-  font-size: 13.5px;
-  text-decoration: none;
+  width: 100%;
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
 }
 
-.notice-item:hover .notice-title {
-  color: #2f7d46;
+.mini {
+  width: 52px;
+  height: 52px;
+  aspect-ratio: 1;
+  flex: none;
 }
 
-.notice-title {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.pick em {
+  display: block;
+  font-size: 14px;
+}
+
+.news-row {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.news-row article {
+  padding: 12px 14px;
+}
+
+.news-row ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.news-row li,
+.story {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px dashed #f0f0f0;
+  font-size: 13px;
+}
+
+.news-row time {
+  color: #bbb;
+  font-size: 12px;
   white-space: nowrap;
 }
 
-.dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #2f7d46;
+.story {
+  align-items: flex-start;
 }
 
-.dot.news {
-  background: #3a7bd5;
+.story .mini.tall {
+  width: 92px;
+  height: 72px;
 }
 
-.dot.origin {
-  background: #d9a300;
+.origin-copy {
+  margin: 0;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.7;
 }
 
-.new-flag {
-  padding: 0 5px;
-  border-radius: 4px;
-  background: #fff1e8;
-  color: #e8590c;
-  font-size: 10px;
-  line-height: 15px;
-}
-
-.notice-more {
-  padding-top: 10px;
-  border-top: 1px solid #f2f4ee;
-  color: #8a9099;
-  font-size: 12.5px;
-  text-align: right;
-  text-decoration: none;
-}
-
-.notice-more:hover {
-  color: #2f7d46;
-}
-
-/* ---------- 服务保障 ---------- */
-.service {
+.split {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  padding: 20px 24px;
-  background: #fff;
-  border: 1px solid #eef0e9;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.panel {
+  padding: 14px 16px 16px;
+}
+
+.presale {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.presale .thumb {
+  height: 180px;
+  aspect-ratio: auto;
+}
+
+.presale dl {
+  margin: 0;
+}
+
+.presale div {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 13px;
+}
+
+.presale dt {
+  color: #999;
+}
+
+.presale dd {
+  margin: 0;
+}
+
+.solid {
+  padding: 7px 18px;
   border-radius: 16px;
 }
 
-.service-item h4 {
-  margin: 0 0 4px;
-  color: #1f2328;
-  font-size: 14.5px;
-  font-weight: 600;
+.sample {
+  margin: 0 0 8px;
+  color: #888;
+  font-size: 12px;
 }
 
-.service-item h4::before {
-  margin-right: 6px;
-  color: #2f7d46;
-  content: '◆';
-  font-size: 10px;
+.trace-form {
+  display: flex;
+  gap: 8px;
 }
 
-.service-item p {
+.trace-form input {
+  flex: 1;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.trace-form button {
+  width: 72px;
+  border-radius: 4px;
+}
+
+.flow {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flow li {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 6px;
+  background: #fff6ea;
+  color: var(--mall-deep);
+  text-align: center;
+  font-size: 13px;
+}
+
+.group {
+  display: grid;
+  grid-template-columns: 1.4fr 80px 1fr auto;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+  padding: 18px 20px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #fff6ea, #ffe7c7);
+}
+
+.group p {
+  margin: 6px 0 0;
+  color: #9a3412;
+  font-size: 13px;
+}
+
+.group ul {
   margin: 0;
-  color: #8a9099;
-  font-size: 12.5px;
+  padding: 0;
+  list-style: none;
+  color: #9a3412;
+  font-size: 13px;
+  line-height: 1.8;
 }
 
-/* ---------- 响应式 ---------- */
+.group-fruit {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+
+.group > button {
+  padding: 8px 16px;
+  border-radius: 18px;
+}
+
+.promises {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 12px;
+  padding: 16px 8px;
+  text-align: center;
+}
+
+.promises b {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.promises span {
+  color: #999;
+  font-size: 12px;
+}
+
+.foot {
+  margin-top: 8px;
+  padding: 28px 0 16px;
+  background: #4d4d4d;
+  color: #ddd;
+  font-size: 13px;
+}
+
+.foot-grid {
+  display: grid;
+  grid-template-columns: 1.3fr repeat(4, 1fr);
+  gap: 18px;
+}
+
+.foot strong {
+  display: block;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.foot p {
+  margin: 0 0 6px;
+}
+
+.copy {
+  margin: 18px 0 0;
+  text-align: center;
+  color: #aaa;
+  font-size: 12px;
+}
+
 @media (max-width: 1100px) {
-  .main-row {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .notice {
-    height: auto;
+  .goods-6,
+  .zones,
+  .group {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
-@media (max-width: 720px) {
-  #home-page {
-    padding: 12px 12px 32px;
+@media (max-width: 860px) {
+  .hero,
+  .services,
+  .goods-4,
+  .goods-6,
+  .zones,
+  .news-row,
+  .split,
+  .promises,
+  .foot-grid,
+  .mast-inner,
+  .group {
+    grid-template-columns: 1fr;
   }
 
-  .hero-body {
-    display: block;
-    padding: 22px 18px 6px;
-  }
-
-  .hero-visual {
-    display: none;
-  }
-
-  .hero-foot {
-    padding: 0 18px 20px;
-  }
-
-  .hero-title {
-    font-size: 21px;
-  }
-
-  .search-bar {
-    width: 100%;
-    box-sizing: border-box;
+  .welcome-inner,
+  .mast-inner {
     flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .search-cat {
-    width: 96px;
-  }
-
-  .search-split {
-    display: none;
-  }
-
-  .search-btn {
-    width: 100%;
-  }
-
-  .search-input {
-    flex: 1 1 120px;
-  }
-
-  .price-range {
-    flex-wrap: wrap;
-  }
-
-  .slide {
-    height: 200px;
-  }
-
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .service {
-    grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>

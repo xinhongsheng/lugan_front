@@ -91,7 +91,6 @@ onMounted(load)
   <div id="order-confirm-page">
     <a-spin :spinning="loading">
       <a-card :bordered="false" class="sheet">
-        <p class="eyebrow">订单确认</p>
         <h1>核对地址和金额</h1>
         <a-empty v-if="addresses.length === 0" description="还没有收货地址">
           <router-link to="/user/profile">去添加地址</router-link>
@@ -134,23 +133,20 @@ onMounted(load)
 #order-confirm-page {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .sheet {
-  border-radius: 16px;
-}
-
-.eyebrow {
-  margin: 0;
-  color: #2f7d46;
-  letter-spacing: 0.12em;
+  border-radius: var(--radius);
+  background: var(--paper);
 }
 
 h1 {
-  margin: 4px 0 16px;
-  font-family: KaiTi, '楷体', serif;
-  font-size: 32px;
+  margin: 0 0 16px;
+  color: var(--ink);
+  font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 
 .addresses {
@@ -176,12 +172,13 @@ h1 {
 .line p,
 .rule {
   margin: 4px 0 0;
-  color: #6b7280;
+  color: var(--muted);
 }
 
 .pay span {
-  color: #e8590c;
+  color: var(--ink);
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 </style>

@@ -9,7 +9,7 @@ import {
   quoteCart,
   updateCart,
 } from '@/api/cartController'
-import { homePhoto } from '@/constants/home'
+import { luganFruitSvg } from '@/constants/taste'
 
 const router = useRouter()
 const loading = ref(false)
@@ -154,7 +154,6 @@ onMounted(load)
     <a-card :bordered="false" class="sheet">
       <div class="head">
         <div>
-          <p class="eyebrow">购物车</p>
           <h1>勾选后一起结算</h1>
         </div>
         <a-button :disabled="selected.length === 0" :loading="acting" @click="removeRows(selected)">删除选中</a-button>
@@ -169,7 +168,7 @@ onMounted(load)
         <a-table-column title="商品" key="product">
           <template #default="{ record }">
             <div class="product">
-              <img :src="record.coverUrl || homePhoto(1)" :alt="record.productName || '永春芦柑'" />
+              <img :src="record.coverUrl || luganFruitSvg(1)" :alt="record.productName || '永春芦柑'" />
               <div>
                 <strong>{{ record.productName || '永春芦柑' }}</strong>
                 <p>{{ record.skuName }} · {{ record.priceMode === 'jin' ? '按斤' : '按件' }}</p>
@@ -244,11 +243,12 @@ onMounted(load)
 #cart-page {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .sheet {
-  border-radius: 16px;
+  border-radius: var(--radius);
+  background: var(--paper);
 }
 
 .head,
@@ -261,16 +261,12 @@ onMounted(load)
   gap: 16px;
 }
 
-.eyebrow {
-  margin: 0;
-  color: #2f7d46;
-  letter-spacing: 0.12em;
-}
-
 h1 {
-  margin: 4px 0 16px;
-  font-family: KaiTi, '楷体', serif;
-  font-size: 32px;
+  margin: 0 0 16px;
+  color: var(--ink);
+  font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 
 .product {
@@ -281,36 +277,34 @@ h1 {
   width: 72px;
   height: 72px;
   object-fit: cover;
-  border-radius: 12px;
-  background: #f2f5ee;
+  border-radius: var(--radius);
+  background: var(--field-2);
 }
 
 .product p,
 .rule {
   margin: 4px 0 0;
-  color: #6b7280;
+  color: var(--muted);
 }
 
 .select-all {
   margin-top: 12px;
 }
 
-.summary {
-  margin-top: 0;
-}
-
 .summary-row {
   padding: 8px 0;
 }
 
-.discount {
-  color: #e8590c;
+.discount,
+.pay strong {
+  color: var(--ink);
 }
 
 .pay strong {
   margin-left: 8px;
-  color: #e8590c;
   font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 
 @media (max-width: 800px) {

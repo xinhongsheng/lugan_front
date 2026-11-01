@@ -20,6 +20,7 @@ import { listMyReviewVoByPage } from '@/api/reviewController'
 import { listMyUserCouponVoByPage } from '@/api/userCouponController'
 import { listMyMessageVoByPage, readMessage } from '@/api/messageController'
 import { ORDER_STATUS_MAP } from '@/constants/order'
+import { HOME_ART } from '@/constants/homeArt'
 
 const router = useRouter()
 const user = ref<API.UserVO>({})
@@ -47,6 +48,16 @@ const addressForm = reactive<API.AddressAddRequest>({
 })
 
 const pageQuery = { current: 1, pageSize: 10 }
+const section = ref('profile')
+const MENUS = [
+  { key: 'profile', label: '我的资料' },
+  { key: 'address', label: '收货地址' },
+  { key: 'order', label: '我的订单' },
+  { key: 'favorite', label: '我的收藏' },
+  { key: 'review', label: '我的评价' },
+  { key: 'coupon', label: '优惠券' },
+  { key: 'message', label: '消息' },
+]
 
 function apiBase() {
   return import.meta.env.VITE_API_BASE_URL || ''
@@ -228,112 +239,179 @@ onMounted(async () => {
 </script>
 
 <template>
-  <page-container id="user-profile-page" title="个人中心">
-    <a-card title="我的资料" :bordered="false">
-      <a-space align="start" :size="24">
-        <div>
-          <a-avatar :size="72" shape="circle" :src="avatarSrc(user.userAvatar)">{{ user.userName?.[0] || '芦' }}</a-avatar>
-          <input class="file" type="file" accept="image/*" @change="onAvatar" />
-        </div>
-        <a-form layout="vertical" :model="profile" @finish="saveProfile">
-          <a-form-item label="账号">
-            <a-input :value="user.userAccount" disabled />
-          </a-form-item>
-          <a-form-item label="昵称">
-            <a-input v-model:value="profile.userName" />
-          </a-form-item>
-          <a-form-item label="手机号">
-            <a-input v-model:value="profile.userPhone" placeholder="用于找回密码" />
-          </a-form-item>
-          <a-space>
-            <a-button type="primary" html-type="submit">保存</a-button>
-            <a-button @click="logout">退出登录</a-button>
-          </a-space>
-        </a-form>
-      </a-space>
-    </a-card>
+  <div id="user-profile-page">
+    <div class="welcome">
+      <div class="rail welcome-inner">
+        <span>欢迎来到 泉州永春芦柑营销平台　|　原产地直供 · 产地溯源 · 助农兴农</span>
+        <nav class="welcome-links">
+          <router-link to="/">首页</router-link>
+          <router-link to="/user/profile">个人中心</router-link>
+          <router-link to="/cart">购物车</router-link>
+          <button type="button" @click="logout">退出</button>
+        </nav>
+      </div>
+    </div>
+    <header class="mast">
+      <div class="rail mast-inner">
+        <router-link to="/" class="brand">
+          <img class="brand-mark" :src="HOME_ART.logo" alt="" />
+          <span>
+            <strong>泉州永春芦柑营销平台</strong>
+            <small>永春芦柑 · 产地直供 · 助农兴农</small>
+          </span>
+        </router-link>
+        <p class="mast-title">个人中心</p>
+      </div>
+    </header>
+    <nav class="main-nav">
+      <div class="rail">
+        <router-link to="/">首页</router-link>
+        <span class="active">个人中心</span>
+        <router-link to="/cart">购物车</router-link>
+      </div>
+    </nav>
 
-    <a-card class="gap" :bordered="false">
-      <a-tabs>
-        <a-tab-pane key="address" tab="收货地址">
-          <a-button type="primary" @click="openAddress()">新增地址</a-button>
-          <a-list class="gap" :data-source="addresses" item-layout="horizontal">
-            <template #renderItem="{ item }">
-              <a-list-item>
-                <a-list-item-meta
-                  :title="`${item.receiverName} ${item.receiverPhone}`"
-                  :description="`${item.province || ''}${item.city || ''}${item.district || ''}${item.detailAddress || ''}`"
-                />
-                <a-tag v-if="item.defaultFlag === 1" color="green">默认</a-tag>
-                <a-button v-else type="link" @click="makeDefault(item)">设为默认</a-button>
-                <a-button type="link" @click="openAddress(item)">编辑</a-button>
-                <a-button type="link" @click="removeAddress(item.id)">删除</a-button>
-              </a-list-item>
-            </template>
-          </a-list>
-          <a-empty v-if="addresses.length === 0" description="还没有收货地址" />
-        </a-tab-pane>
-        <a-tab-pane key="favorite" tab="我的收藏">
-          <a-empty v-if="favorites.length === 0" description="还没有收藏" />
-          <a-list v-else :data-source="favorites">
-            <template #renderItem="{ item }">
-              <a-list-item>
-                <a-list-item-meta :title="item.productName || '商品'" :description="`¥${item.price ?? ''}`" />
-                <a-button type="link" @click="removeFavorite(item.id)">取消收藏</a-button>
-              </a-list-item>
-            </template>
-          </a-list>
-        </a-tab-pane>
-        <a-tab-pane key="order" tab="我的订单">
-          <a-empty v-if="orders.length === 0" description="还没有订单" />
-          <a-list v-else :data-source="orders">
-            <template #renderItem="{ item }">
-              <a-list-item>
-                <a-list-item-meta :title="item.orderNo" :description="orderText(item.orderStatus)" />
-                <a-button type="link" @click="router.push({ path: '/order/detail', query: { id: item.id } })">
-                  ¥{{ item.payAmount }}
-                </a-button>
-              </a-list-item>
-            </template>
-          </a-list>
-        </a-tab-pane>
-        <a-tab-pane key="review" tab="我的评价">
-          <a-empty v-if="reviews.length === 0" description="还没有评价" />
-          <a-list v-else :data-source="reviews">
-            <template #renderItem="{ item }">
-              <a-list-item>
-                <a-list-item-meta :title="`${item.score} 分`" :description="item.content" />
-              </a-list-item>
-            </template>
-          </a-list>
-        </a-tab-pane>
-        <a-tab-pane key="coupon" tab="优惠券">
-          <a-empty v-if="coupons.length === 0" description="还没有优惠券" />
-          <a-list v-else :data-source="coupons">
-            <template #renderItem="{ item }">
-              <a-list-item>
-                <a-list-item-meta
-                  :title="item.couponName || '优惠券'"
-                  :description="`减 ${item.discountAmount} 元，满 ${item.minAmount} 可用`"
-                />
-              </a-list-item>
-            </template>
-          </a-list>
-        </a-tab-pane>
-        <a-tab-pane key="message" tab="消息">
-          <a-empty v-if="messages.length === 0" description="还没有消息" />
-          <a-list v-else :data-source="messages">
-            <template #renderItem="{ item }">
-              <a-list-item>
-                <a-list-item-meta :title="item.title" :description="item.content" />
-                <a-button v-if="item.readFlag !== 1" type="link" @click="markRead(item.id)">标为已读</a-button>
-                <a-tag v-else>已读</a-tag>
-              </a-list-item>
-            </template>
-          </a-list>
-        </a-tab-pane>
-      </a-tabs>
-    </a-card>
+    <main class="rail body">
+      <section class="summary">
+        <a-avatar :size="64" shape="circle" :src="avatarSrc(user.userAvatar)">
+          {{ user.userName?.[0] || '芦' }}
+        </a-avatar>
+        <div>
+          <h1>{{ user.userName || user.userAccount || '买家' }}</h1>
+          <p>{{ user.userAccount }}</p>
+        </div>
+        <ul>
+          <li><button type="button" @click="section = 'order'"><strong>{{ orders.length }}</strong>订单</button></li>
+          <li><button type="button" @click="section = 'favorite'"><strong>{{ favorites.length }}</strong>收藏</button></li>
+          <li><button type="button" @click="section = 'coupon'"><strong>{{ coupons.length }}</strong>优惠券</button></li>
+          <li><button type="button" @click="section = 'message'"><strong>{{ messages.length }}</strong>消息</button></li>
+        </ul>
+      </section>
+
+      <div class="desk">
+        <aside>
+          <button
+            v-for="item in MENUS"
+            :key="item.key"
+            type="button"
+            :class="{ active: section === item.key }"
+            @click="section = item.key"
+          >
+            {{ item.label }}
+          </button>
+        </aside>
+        <section class="panel">
+          <template v-if="section === 'profile'">
+            <h2>我的资料</h2>
+            <div class="profile-row">
+              <div>
+                <a-avatar :size="72" shape="circle" :src="avatarSrc(user.userAvatar)">
+                  {{ user.userName?.[0] || '芦' }}
+                </a-avatar>
+                <label class="file">
+                  更换头像
+                  <input type="file" accept="image/*" @change="onAvatar" />
+                </label>
+              </div>
+              <a-form layout="vertical" :model="profile" @finish="saveProfile">
+                <a-form-item label="账号">
+                  <a-input :value="user.userAccount" disabled />
+                </a-form-item>
+                <a-form-item label="昵称">
+                  <a-input v-model:value="profile.userName" />
+                </a-form-item>
+                <a-form-item label="手机号">
+                  <a-input v-model:value="profile.userPhone" placeholder="用于找回密码" />
+                </a-form-item>
+                <a-button type="primary" html-type="submit">保存</a-button>
+              </a-form>
+            </div>
+          </template>
+
+          <template v-else-if="section === 'address'">
+            <header class="panel-head">
+              <h2>收货地址</h2>
+              <button type="button" class="solid" @click="openAddress()">新增地址</button>
+            </header>
+            <a-empty v-if="addresses.length === 0" description="还没有收货地址" />
+            <article v-for="item in addresses" :key="item.id" class="row">
+              <div>
+                <strong>{{ item.receiverName }} {{ item.receiverPhone }}</strong>
+                <p>{{ item.province }}{{ item.city }}{{ item.district }}{{ item.detailAddress }}</p>
+              </div>
+              <div class="ops">
+                <em v-if="item.defaultFlag === 1">默认</em>
+                <button v-else type="button" @click="makeDefault(item)">设为默认</button>
+                <button type="button" @click="openAddress(item)">编辑</button>
+                <button type="button" @click="removeAddress(item.id)">删除</button>
+              </div>
+            </article>
+          </template>
+
+          <template v-else-if="section === 'favorite'">
+            <h2>我的收藏</h2>
+            <a-empty v-if="favorites.length === 0" description="还没有收藏" />
+            <article v-for="item in favorites" :key="item.id" class="row">
+              <div>
+                <strong>{{ item.productName || '商品' }}</strong>
+                <p class="price">¥{{ item.price ?? '' }}</p>
+              </div>
+              <button type="button" @click="removeFavorite(item.id)">取消收藏</button>
+            </article>
+          </template>
+
+          <template v-else-if="section === 'order'">
+            <h2>我的订单</h2>
+            <a-empty v-if="orders.length === 0" description="还没有订单" />
+            <article v-for="item in orders" :key="item.id" class="row">
+              <div>
+                <strong>{{ item.orderNo }}</strong>
+                <p>{{ orderText(item.orderStatus) }}</p>
+              </div>
+              <button type="button" class="price" @click="router.push({ path: '/order/detail', query: { id: item.id } })">
+                ¥{{ item.payAmount }}
+              </button>
+            </article>
+          </template>
+
+          <template v-else-if="section === 'review'">
+            <h2>我的评价</h2>
+            <a-empty v-if="reviews.length === 0" description="还没有评价" />
+            <article v-for="item in reviews" :key="item.id" class="row">
+              <div>
+                <strong>{{ item.score }} 分</strong>
+                <p>{{ item.content }}</p>
+              </div>
+            </article>
+          </template>
+
+          <template v-else-if="section === 'coupon'">
+            <h2>优惠券</h2>
+            <a-empty v-if="coupons.length === 0" description="还没有优惠券" />
+            <article v-for="item in coupons" :key="item.id" class="row coupon">
+              <strong>减 {{ item.discountAmount }} 元</strong>
+              <div>
+                <b>{{ item.couponName || '优惠券' }}</b>
+                <p>满 {{ item.minAmount }} 可用</p>
+              </div>
+            </article>
+          </template>
+
+          <template v-else>
+            <h2>消息</h2>
+            <a-empty v-if="messages.length === 0" description="还没有消息" />
+            <article v-for="item in messages" :key="item.id" class="row">
+              <div>
+                <strong>{{ item.title }}</strong>
+                <p>{{ item.content }}</p>
+              </div>
+              <button v-if="item.readFlag !== 1" type="button" @click="markRead(item.id)">标为已读</button>
+              <em v-else>已读</em>
+            </article>
+          </template>
+        </section>
+      </div>
+    </main>
 
     <a-modal v-model:open="addressOpen" :title="editingAddressId ? '编辑地址' : '新增地址'" ok-text="保存" @ok="saveAddress">
       <a-form layout="vertical" :model="addressForm">
@@ -354,21 +432,324 @@ onMounted(async () => {
         </a-form-item>
       </a-form>
     </a-modal>
-  </page-container>
+  </div>
 </template>
 
 <style scoped>
 #user-profile-page {
-  min-height: 100%;
+  --mall: #f39800;
+  --mall-deep: #e8870a;
+  --price: #ff4d00;
+  min-height: 100vh;
+  background: #f5f5f5;
+  color: #333;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
-.gap {
-  margin-top: 16px;
+.rail {
+  box-sizing: border-box;
+  width: min(1200px, calc(100% - 24px));
+  margin: 0 auto;
+}
+
+.welcome {
+  background: #fff;
+  border-bottom: 1px solid #f2f2f2;
+  color: #999;
+  font-size: 12px;
+}
+
+.welcome-inner,
+.mast-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 34px;
+}
+
+.welcome-links {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.welcome-links a,
+.welcome-links button {
+  border: 0;
+  background: transparent;
+  color: #666;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.mast {
+  background: #fff;
+  padding: 14px 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--mall-deep);
+  text-decoration: none;
+}
+
+.brand-mark {
+  width: 46px;
+  height: 46px;
+}
+
+.brand strong {
+  display: block;
+  font-size: 20px;
+}
+
+.brand small {
+  color: #b0b0b0;
+  font-size: 12px;
+}
+
+.mast-title {
+  margin: 0;
+  color: var(--mall-deep);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.main-nav {
+  background: var(--mall);
+}
+
+.main-nav .rail {
+  display: flex;
+  align-items: stretch;
+  min-height: 44px;
+  gap: 4px;
+}
+
+.main-nav a,
+.main-nav .active {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 22px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.main-nav .active {
+  background: var(--mall-deep);
+}
+
+.body {
+  padding: 16px 0 32px;
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.summary h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.summary p {
+  margin: 4px 0 0;
+  color: #999;
+  font-size: 13px;
+}
+
+.summary ul {
+  display: flex;
+  gap: 18px;
+  margin: 0 0 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.summary button {
+  border: 0;
+  background: transparent;
+  color: #666;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.summary strong {
+  display: block;
+  color: var(--price);
+  font-size: 20px;
+}
+
+.desk {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+  align-items: start;
+}
+
+aside,
+.panel {
+  background: #fff;
+  border-radius: 8px;
+}
+
+aside {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+}
+
+aside button {
+  height: 40px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #444;
+  font: inherit;
+  text-align: left;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+aside button.active {
+  background: #fff6ea;
+  color: var(--mall-deep);
+  font-weight: 600;
+}
+
+.panel {
+  min-height: 420px;
+  padding: 16px 18px 20px;
+}
+
+.panel h2 {
+  margin: 0 0 14px;
+  font-size: 18px;
+}
+
+.panel h2::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  margin-right: 8px;
+  border-radius: 2px;
+  background: var(--mall);
+  vertical-align: -2px;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-row {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 360px);
+  gap: 24px;
 }
 
 .file {
-  display: block;
-  margin-top: 8px;
-  max-width: 180px;
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--mall-deep);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.file input {
+  display: none;
+}
+
+.solid,
+.row > button,
+.ops button {
+  border: 0;
+  background: transparent;
+  color: var(--mall-deep);
+  font: inherit;
+  cursor: pointer;
+}
+
+.solid {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 16px;
+  background: var(--mall);
+  color: #fff;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid #f3f3f3;
+}
+
+.row p {
+  margin: 4px 0 0;
+  color: #888;
+  font-size: 13px;
+}
+
+.ops {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.ops em,
+.row > em {
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: #fff1df;
+  color: var(--mall-deep);
+  font-style: normal;
+  font-size: 12px;
+}
+
+.price {
+  color: var(--price);
+  font-weight: 600;
+}
+
+.coupon strong {
+  min-width: 92px;
+  color: var(--price);
+  font-size: 18px;
+}
+
+@media (max-width: 800px) {
+  .summary,
+  .desk,
+  .profile-row,
+  .welcome-inner {
+    display: block;
+  }
+
+  .summary ul {
+    margin: 12px 0 0;
+  }
+
+  aside {
+    flex-direction: row;
+    overflow-x: auto;
+    margin-bottom: 12px;
+  }
 }
 </style>

@@ -1,0 +1,34 @@
+/* 装箱签视觉系统 — Taste Skill page-is-the-object · Navy on white · Switzer */
+:root {
+  --bg: #ffffff;
+  --surface: #f4f4f2;
+  --ink: #1f2b4d;
+  --muted: #6a7186;
+  --accent: #f7941d;
+  --accent-ink: #1f2b4d;
+  --field-1: #05070a;
+  --field-1-ink: #ffffff;
+  --field-2: #e3e1dc;
+  --field-2-ink: #1f2b4d;
+  --paper: #f4f4f2;
+  --radius: 4px;
+  --content-max: 1120px;
+  --page-gutter: clamp(20px, 4vw, 48px);
+  --section-gap: clamp(40px, 5vw, 64px);
+  --step-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
+  --step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  --step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
+  --step-head: clamp(2rem, 1.3rem + 3.2vw, 4rem);
+  --font: 'Switzer', 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, white);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

@@ -152,7 +152,7 @@ watch(() => route.query.id, load)
   <div id="order-detail-page">
     <a-spin :spinning="loading">
       <a-card :bordered="false" class="sheet">
-        <p class="eyebrow">订单 {{ detail.orderNo }}</p>
+        <p class="meta">订单号 {{ detail.orderNo }}</p>
         <h1>{{ statusText }}</h1>
         <p v-if="refundText" class="warn">{{ refundText }}：{{ detail.refundReason }}</p>
         <p class="meta">{{ addressText || '未填写收货地址' }}</p>
@@ -222,33 +222,30 @@ watch(() => route.query.id, load)
 #order-detail-page {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .sheet {
-  border-radius: 16px;
-}
-
-.eyebrow {
-  margin: 0;
-  color: #2f7d46;
-  letter-spacing: 0.08em;
+  border-radius: var(--radius);
+  background: var(--paper);
 }
 
 h1 {
   margin: 4px 0 8px;
-  font-family: KaiTi, '楷体', serif;
-  font-size: 32px;
+  color: var(--ink);
+  font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 
 .meta,
 .warn {
   margin: 4px 0;
-  color: #5c6570;
+  color: var(--muted);
 }
 
 .warn {
-  color: #b5450c;
+  color: #9a3412;
 }
 
 .line,
@@ -261,12 +258,14 @@ h1 {
 
 .line p {
   margin: 4px 0 0;
-  color: #6b7280;
+  color: var(--muted);
 }
 
 .pay strong {
-  color: #e8590c;
+  color: var(--ink);
   font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 
 .review-row,
@@ -281,6 +280,6 @@ h1 {
   width: 72px;
   height: 72px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: var(--radius);
 }
 </style>
